@@ -1,0 +1,41 @@
+{
+  "games": [
+    {
+      "id": "chess",
+      "name": "Chess",
+      "category": "strategy",
+      "icon": "&#9812;",
+      "iconBg": "#f3e8ff",
+      "description": "Play online vs. a friend over a real-time WebSocket connection, or vs. a Stockfish-backed engine. Voice control, post-game analysis, and curated puzzles included.",
+      "appUrl": "https://chess.progamestore.online",
+      "repo": "progamestore-online/chess",
+      "cfProject": "prochess",
+      "type": "multiplayer",
+      "developer": "ProGameStore",
+      "author": "ProGameStore Team",
+      "price": {
+        "model": "subscription",
+        "amountUsd": 2,
+        "period": "month",
+        "trialDays": 7
+      },
+      "features": [
+        "Server-authoritative multiplayer (Durable Objects)",
+        "Stockfish 16 engine + post-game analysis",
+        "1,000 curated Lichess puzzles",
+        "Voice control (\"knight to f3\")",
+        "Cross-device sync via your @progamestore account"
+      ],
+      "version": "0.1.0",
+      "firstPublished": "2026-05-20",
+      "lastUpdated": "2026-05-20",
+      "versions": [
+        {
+          "version": "0.1.0",
+          "date": "2026-05-20",
+          "notes": "Initial PGS release. Lifted from progamestore-online/chess (single-player only) with the multiplayer Worker re-enabled on the @progamestore/games useRooms() hook."
+        }
+      ]
+    }
+  ]
+}

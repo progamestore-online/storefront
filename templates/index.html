@@ -1,0 +1,192 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+  <title>ProGameStore — Premium Web Games</title>
+  <meta name="description" content="A marketplace of premium web games. Multiplayer, server-side AI, cloud sync — subscription-priced. Works on mobile, tablet, and desktop. Quality-gated." />
+  <meta property="og:type" content="website" />
+  <meta property="og:title" content="ProGameStore — Premium Web Games" />
+  <meta property="og:description" content="A marketplace of premium web games. Multiplayer, server-side AI, cloud sync — subscription-priced. Works on mobile, tablet, and desktop. Quality-gated." />
+  <meta property="og:url" content="https://progamestore.online/" />
+  <meta property="og:image" content="https://progamestore.online/icon-512.png" />
+  <meta name="twitter:card" content="summary" />
+  <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
+  <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
+  <meta name="theme-color" content="#f8fafc" media="(prefers-color-scheme: light)" />
+  <meta name="theme-color" content="#0f172a" media="(prefers-color-scheme: dark)" />
+  <!-- CSP: lock down what the page can load + ban iframing the storefront (anti-clickjack). -->
+  <meta http-equiv="Content-Security-Policy" content="default-src 'self'; img-src 'self' https: data:; script-src 'self' '{{INLINE_SCRIPT_HASH}}'; style-src 'self' 'unsafe-inline'; font-src 'self'; connect-src 'self' https://*.progamestore.online https://api.freegamestore.online; frame-src https://*.progamestore.online https://*.freegamestore.online https://*.progamestore.online; base-uri 'self';" />
+  <!-- Apply theme before paint to avoid flash. Reads localStorage then falls back to system preference. -->
+  <script>
+    (function(){try{var s=localStorage.getItem('pgs-theme');var d=s?s==='dark':window.matchMedia('(prefers-color-scheme: dark)').matches;if(d)document.documentElement.classList.add('dark');}catch(e){}})();
+  </script>
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+  <header>
+    <div class="container">
+      <a href="/" class="brand" aria-label="ProGameStore — Games Marketplace">
+        <span class="brand-mark" aria-hidden="true">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="6" width="20" height="12" rx="4"></rect><line x1="8" y1="12" x2="6" y2="12"></line><line x1="7" y1="11" x2="7" y2="13"></line><circle cx="16" cy="11" r="1" fill="currentColor"></circle><circle cx="18" cy="13" r="1" fill="currentColor"></circle></svg>
+        </span>
+        <span class="brand-text">
+          <span class="brand-name">ProGameStore</span>
+          <span class="brand-tag">Premium Multiplayer</span>
+        </span>
+      </a>
+
+      <nav>
+        <a href="/">Games</a>
+        <a href="https://freegamestore.online">Free Games</a>
+        <a href="/about.html">About</a>
+        <a href="/pricing.html">Pricing</a>
+        <a href="/guidelines.html">Guidelines</a>
+      </nav>
+
+      <div class="header-right">
+        <button id="themeToggle" class="theme-toggle" type="button" aria-label="Toggle dark mode" title="Toggle dark mode">
+          <svg class="icon-moon" viewBox="0 0 24 24" aria-hidden="true"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path></svg>
+          <svg class="icon-sun" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="4"></circle><path d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M4.93 19.07l1.41-1.41M17.66 6.34l1.41-1.41"></path></svg>
+        </button>
+      </div>
+    </div>
+  </header>
+
+  <main class="container">
+    <section class="apps-section" id="games">
+      <div class="mode-tabs" role="tablist" aria-label="Search mode">
+        <button class="mode-tab active" type="button" data-mode="ai" role="tab" aria-selected="true">
+          <svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M12 2l1.5 4.5L18 8l-4.5 1.5L12 14l-1.5-4.5L6 8l4.5-1.5L12 2zm6 10l1 3 3 1-3 1-1 3-1-3-3-1 3-1 1-3zm-13 4l.8 2.2L8 19l-2.2.8L5 22l-.8-2.2L2 19l2.2-.8L5 16z"/></svg>
+          AI Assistant
+        </button>
+        <button class="mode-tab" type="button" data-mode="search" role="tab" aria-selected="false">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="11" cy="11" r="7"/><path d="M21 21l-4.3-4.3"/></svg>
+          Simple Search
+        </button>
+      </div>
+
+      <div class="input-wrap" id="aiInputWrap">
+        <svg class="input-icon" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M12 2l1.5 4.5L18 8l-4.5 1.5L12 14l-1.5-4.5L6 8l4.5-1.5L12 2zm6 10l1 3 3 1-3 1-1 3-1-3-3-1 3-1 1-3z"/></svg>
+        <input
+          class="prompt-input"
+          id="ai-prompt"
+          type="text"
+          placeholder="Tell me the kind of game you want and I'll suggest some..."
+          autocomplete="off"
+          aria-label="Describe what you want and we'll recommend games"
+        />
+      </div>
+
+      <div class="input-wrap" id="searchInputWrap" hidden>
+        <svg class="input-icon muted" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="11" cy="11" r="7"/><path d="M21 21l-4.3-4.3"/></svg>
+        <input
+          class="search-input"
+          type="search"
+          id="storefront-search"
+          placeholder="Search games + apps…"
+          autocomplete="off"
+          aria-label="Search games and apps"
+        />
+      </div>
+
+      <div class="apps-header">
+        <div class="apps-header-title">
+          <h2>All Games</h2>
+          <div class="count" id="apps-count">{{GAMES_COUNT}} total</div>
+        </div>
+        <div class="apps-tabs" role="tablist" aria-label="Sort games">
+          <button class="apps-tab active" type="button" data-sort="featured" role="tab" aria-selected="true">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="22 7 13.5 15.5 8.5 10.5 2 17"/><polyline points="16 7 22 7 22 13"/></svg>
+            Featured
+          </button>
+          <button class="apps-tab" type="button" data-sort="top" role="tab" aria-selected="false">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M8 21h8M12 17v4M7 4h10v5a5 5 0 0 1-10 0V4zM5 4h2v3a3 3 0 0 1-3-3M17 4h2a3 3 0 0 1-3 3V4z"/></svg>
+            Top Rated
+          </button>
+          <button class="apps-tab" type="button" data-sort="active" role="tab" aria-selected="false">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="3 12 7 12 10 5 14 19 17 12 21 12"/></svg>
+            Most Played
+          </button>
+          <button class="apps-tab" type="button" data-sort="popular" role="tab" aria-selected="false">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M8.5 14.5A2.5 2.5 0 0 0 11 17c1.5 0 2.5-1 2.5-2.5 0-3-4-3-4-6 0-1.5 1-2.5 2.5-2.5 1.5 0 2.5 1 2.5 2.5"/><path d="M12 22c4.97 0 9-4.03 9-9 0-5-3-7-5-9 0 4-3 5-5 7s-3 4-3 6c0 3 2 5 4 5z"/></svg>
+            Popular
+          </button>
+        </div>
+      </div>
+
+      <div class="split-layout">
+        <div class="apps-pane">
+          <div class="apps-grid compact" id="apps-grid">
+            {{GAMES_GRID}}
+          </div>
+
+          <p id="search-empty" hidden>No games match your search here.</p>
+
+          <section id="cross-store-results" hidden style="margin-top: 2.5rem;">
+            <h2>Also matching on FreeAppStore</h2>
+            <div class="apps-grid compact" id="cross-store-grid"></div>
+          </section>
+        </div>
+
+        <aside class="preview-pane" id="previewPane" aria-label="Game preview">
+          <div class="preview-toolbar">
+            <div class="preview-title" id="previewTitle">No game selected<span class="preview-host"></span></div>
+            <button class="preview-btn" id="previewAbout" type="button" title="View details" aria-label="View details" hidden>
+              <svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="10"/><line x1="12" y1="16" x2="12" y2="12"/><line x1="12" y1="8" x2="12.01" y2="8"/></svg>
+            </button>
+            <button class="preview-btn" id="previewFullscreen" type="button" title="Fullscreen" aria-label="Fullscreen" hidden>
+              <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3 7V3h4M21 7V3h-4M3 17v4h4M21 17v4h-4"/></svg>
+            </button>
+            <button class="preview-btn" id="previewNewTab" type="button" title="Open in new tab" aria-label="Open in new tab" hidden>
+              <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M14 3h7v7"/><path d="M10 14L21 3"/><path d="M21 13v7a1 1 0 0 1-1 1H4a1 1 0 0 1-1-1V4a1 1 0 0 1 1-1h7"/></svg>
+            </button>
+            <button class="preview-btn" id="previewClose" type="button" title="Close preview" aria-label="Close preview" hidden>
+              <svg viewBox="0 0 24 24" aria-hidden="true"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+            </button>
+          </div>
+          <div class="preview-body">
+            <div class="preview-empty" id="previewEmpty">
+              <span class="empty-icon" aria-hidden="true">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="6,4 20,12 6,20"/></svg>
+              </span>
+              <span class="empty-title">Pick any game to play it here</span>
+              <span class="empty-tip">Click a game on the left and it loads instantly in this pane. Use <strong>⛶</strong> for fullscreen or <strong>↗</strong> to pop it into a new tab.</span>
+            </div>
+            <iframe class="preview-frame" id="previewFrame" title="Game preview" allow="fullscreen; autoplay; gamepad" sandbox="allow-scripts allow-forms allow-same-origin allow-popups allow-popups-to-escape-sandbox allow-downloads" referrerpolicy="no-referrer-when-downgrade" loading="lazy" hidden></iframe>
+          </div>
+        </aside>
+      </div>
+    </section>
+
+    <script type="application/json" id="cross-store-registry">{{CROSS_STORE_REGISTRY}}</script>
+    <script src="/search.js" defer></script>
+
+    <aside style="text-align: center; padding: 1.5rem 0 0.5rem; font-size: 0.9rem; color: var(--muted);">
+      Looking for free games? Visit <a href="https://freegamestore.online" style="color: var(--accent); font-weight: 600;">FreeGameStore</a> — same shell, free forever, single-player only.
+    </aside>
+  </main>
+
+  <footer>
+    <div class="container">
+      <div class="footer-left">
+        <a href="/" class="logo">Pro<span>Game</span>Store</a>
+        <p>Free forever, open source, privacy-first.</p>
+      </div>
+      <div class="footer-links">
+        <a href="/about.html">About</a>
+        
+        <a href="/docs/">Docs</a>
+        <a href="/guidelines.html">Guidelines</a>
+        <a href="/privacy.html">Privacy</a>
+        <a href="/terms.html">Terms</a>
+        <a href="https://github.com/progamestore-online">GitHub</a>
+        <a href="https://github.com/progamestore-online/progamestore/discussions">Support</a>
+      </div>
+    </div>
+  </footer>
+
+  <script src="/storefront.js" defer></script>
+  <script src="/theme.js"></script>
+</body>
+</html>

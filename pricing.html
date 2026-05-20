@@ -1,0 +1,147 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Pricing — ProGameStore</title>
+  <meta name="description" content="How games on ProGameStore are priced — developer-set monthly subscription, 7-day free trial, 10% platform commission. Cancel any time." />
+  <meta property="og:type" content="website" />
+  <meta property="og:title" content="Pricing — ProGameStore" />
+  <meta property="og:description" content="Subscription-priced, 7-day trial, cancel any time. Want free games? Visit FreeGameStore." />
+  <meta property="og:url" content="https://progamestore.online/pricing.html" />
+  <meta property="og:image" content="https://progamestore.online/icon-512.png" />
+  <meta name="twitter:card" content="summary" />
+  <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
+  <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
+  <link rel="stylesheet" href="style.css" />
+  <style>
+    .tier-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 1.5rem; margin: 2rem 0 3rem; }
+    @media (max-width: 720px) { .tier-grid { grid-template-columns: 1fr; } }
+    .tier { background: var(--surface, white); border: 1px solid var(--border); border-radius: 1rem; padding: 1.75rem; }
+    .tier.pro { border-color: var(--accent); }
+    .tier h3 { font-size: 1.4rem; font-weight: 800; margin-bottom: 0.25rem; letter-spacing: -0.01em; }
+    .tier .price { font-family: 'Fraunces', serif; font-size: 2rem; font-weight: 800; line-height: 1; margin: 0.5rem 0 0.25rem; }
+    .tier .price small { font-size: 0.7rem; font-weight: 500; color: var(--muted); letter-spacing: 0; }
+    .tier .blurb { color: var(--muted); font-size: 0.92rem; margin-bottom: 1.25rem; }
+    .tier ul { list-style: none; padding: 0; margin: 0; }
+    .tier li { padding: 0.45rem 0 0.45rem 1.5rem; font-size: 0.9rem; position: relative; border-bottom: 1px solid var(--line, #f0f0f0); }
+    .tier li:last-child { border-bottom: 0; }
+    .tier.free li::before { content: "\2713"; position: absolute; left: 0; color: #10b981; font-weight: 700; }
+    .tier.pro li::before { content: "+"; position: absolute; left: 0; color: var(--accent); font-weight: 700; }
+    .tier li small { display: block; color: var(--muted); font-size: 0.75rem; margin-top: 0.15rem; }
+    .tier .cta { display: inline-block; margin-top: 1.5rem; padding: 0.7rem 1.4rem; border-radius: 0.6rem; font-weight: 700; text-decoration: none; }
+    .tier.free .cta { background: #10b981; color: white; }
+    .tier.pro .cta { background: var(--accent); color: white; }
+    .commission { background: var(--panel, #faf5ff); border-left: 3px solid var(--accent); padding: 1rem 1.25rem; border-radius: 0.5rem; margin: 1.5rem 0; font-size: 0.92rem; }
+  </style>
+</head>
+<body>
+  <header>
+    <div class="container">
+      <a href="/" class="logo">Pro<span>Game</span>Store</a>
+      <button class="nav-toggle" onclick="this.nextElementSibling.classList.toggle('open')" aria-label="Menu"><svg width="20" height="20" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M3 5h14M3 10h14M3 15h14"/></svg></button>
+      <nav>
+        <a href="/">Games</a>
+        <a href="https://freegamestore.online">Free Games</a>
+        <a href="/about.html">About</a>
+        <a href="/guidelines.html">Guidelines</a>
+        <a href="/pricing.html">Pricing</a>
+      </nav>
+    </div>
+  </header>
+
+  <main class="container">
+    <div class="page-header">
+      <h1>Pricing</h1>
+      <p>Each game on ProGameStore is subscription-priced by its developer. Every game offers a 7-day free trial. Cancel any time.</p>
+    </div>
+
+    <div class="page-content">
+      <div class="tier-grid">
+        <div class="tier free">
+          <h3>FreeGameStore</h3>
+          <div class="price">$0<small>/forever</small></div>
+          <p class="blurb">If you don't need multiplayer or cloud sync, every game on the free side is genuinely free, forever, no account.</p>
+          <ul>
+            <li>43+ single-player web games</li>
+            <li>Works offline (Progressive Web App)</li>
+            <li>Local-only save data &mdash; never leaves your device</li>
+            <li>No tracking, no ads, no accounts</li>
+            <li>MIT-licensed, open source</li>
+          </ul>
+          <a href="https://freegamestore.online" class="cta">Visit FreeGameStore &rarr;</a>
+        </div>
+
+        <div class="tier pro">
+          <h3>ProGameStore</h3>
+          <div class="price">$2&ndash;$10<small>/month per game</small></div>
+          <p class="blurb">Each game sets its own subscription price. The first game on the platform (Chess) is $2/month with a 7-day trial.</p>
+          <ul>
+            <li>Real-time multiplayer (Durable Objects)</li>
+            <li>Server-authoritative state &mdash; no cheating</li>
+            <li>Cloud save sync across devices</li>
+            <li>Server-side AI opponents</li>
+            <li>7-day free trial on every game</li>
+            <li>Cancel any time, prorated refund within 30 days</li>
+          </ul>
+          <a href="/" class="cta">Browse games &rarr;</a>
+        </div>
+      </div>
+
+      <h2>How subscriptions work</h2>
+      <p>You subscribe to a game (not the platform). One <code>@progamestore</code> account holds all your subscriptions; each one bills separately. There is no platform-wide "Pro plan" &mdash; you pay only for the games you actually play.</p>
+
+      <p>Payments go through Stripe. The platform takes a 10% commission; the rest goes to the developer who built the game. Refunds are processed by the platform: prorated within the first 30 days, no refunds after.</p>
+
+      <div class="commission">
+        <strong>10% platform commission &mdash; here's where it goes.</strong> Cloudflare Durable Object charges (the WebSocket multiplayer infrastructure) are the bulk of the platform cost. The rest covers Stripe fees, the auth + leaderboard workers, and the team that runs compliance + uptime monitoring. Developers keep 90% of what their game earns.
+      </div>
+
+      <h2>What you get with a subscription</h2>
+      <ul>
+        <li><strong>Unlimited play time</strong> &mdash; no per-game caps. Subscription pays for the underlying multiplayer infrastructure.</li>
+        <li><strong>Cloud saves</strong> &mdash; your game state syncs across phone, tablet, laptop.</li>
+        <li><strong>Multiplayer matchmaking</strong> &mdash; subscribed players are matched together by default.</li>
+        <li><strong>Server-side AI</strong> &mdash; some games (chess) include a Stockfish engine running server-side. Token-billed AI features (e.g. LLM opponents) might be a small per-game add-on.</li>
+        <li><strong>No ads, no upsells, no tracking</strong> &mdash; same brand-consistent shell as FreeGameStore. The subscription is the entire business model.</li>
+      </ul>
+
+      <h2>Trial &amp; cancellation</h2>
+      <ul>
+        <li><strong>7-day free trial</strong> on every game. Card required to start the trial; no charge until day 7. Cancel during the trial = no charge.</li>
+        <li><strong>Cancel any time</strong> from your account page. You keep access until the end of the current billing period.</li>
+        <li><strong>30-day prorated refund</strong> &mdash; if you cancel within the first 30 days of a subscription, we'll refund the unused portion. After 30 days, no refunds (cancel still works).</li>
+      </ul>
+
+      <h2>How developers set prices</h2>
+      <p>Game developers pick their price when they publish, with a minimum of $1/month and a maximum of $20/month. Prices can change between subscription periods (never mid-period for existing subscribers). The platform doesn't dictate pricing &mdash; we trust developers to charge what their game's worth.</p>
+
+      <h2>Compared to FreeGameStore</h2>
+      <p>FreeGameStore is genuinely free forever. The two stores share the same brand, the same SDK, the same compliance bar. The difference is what each can offer:</p>
+      <ul>
+        <li>FreeGameStore games are <strong>single-player only</strong>. State lives on your device. Free because the platform doesn't pay for server-side anything.</li>
+        <li>ProGameStore games are <strong>server-authoritative</strong>. Real-time multiplayer, cloud sync, persistent worlds. Subscription pays the per-GB-second Durable Object bill.</li>
+      </ul>
+      <p>If you only want single-player, stay on FreeGameStore. If you want to play chess against a friend in real time over a WebSocket connection, that's why this side exists.</p>
+    </div>
+  </main>
+
+  <footer>
+    <div class="container">
+      <div class="footer-left">
+        <a href="/" class="logo">Pro<span>Game</span>Store</a>
+        <p>Premium web games with superpowers.</p>
+      </div>
+      <div class="footer-links">
+        <a href="/about.html">About</a>
+        <a href="/pricing.html">Pricing</a>
+        <a href="/guidelines.html">Guidelines</a>
+        <a href="/privacy.html">Privacy</a>
+        <a href="/terms.html">Terms</a>
+        <a href="https://github.com/progamestore-online">GitHub</a>
+        <a href="https://freegamestore.online">FreeGameStore</a>
+      </div>
+    </div>
+  </footer>
+</body>
+</html>

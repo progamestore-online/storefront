@@ -1,0 +1,329 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Developer Guidelines — ProGameStore</title>
+  <meta name="description" content="Design system, tech stack, and publishing guidelines for ProGameStore game developers." />
+  <meta property="og:type" content="website" />
+  <meta property="og:title" content="Developer Guidelines — ProGameStore" />
+  <meta property="og:description" content="Design system, tech stack, and publishing guidelines for ProGameStore game developers." />
+  <meta property="og:url" content="https://progamestore.online/" />
+  <meta property="og:image" content="https://progamestore.online/icon-512.png" />
+  <meta name="twitter:card" content="summary" />
+  <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
+  <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
+  <link rel="stylesheet" href="style.css" />
+  <style>
+    .spec-table { width: 100%; border-collapse: collapse; margin: 1.5rem 0; font-size: 0.88rem; }
+    .spec-table th, .spec-table td { padding: 0.6rem 0.75rem; text-align: left; border-bottom: 1px solid var(--border); }
+    .spec-table th { font-weight: 700; color: var(--ink); }
+    .spec-table td { color: var(--muted); }
+    .spec-table code { background: var(--surface); padding: 0.15rem 0.4rem; border-radius: 4px; font-size: 0.82rem; }
+    .color-swatch { display: inline-block; width: 16px; height: 16px; border-radius: 4px; vertical-align: middle; margin-right: 0.4rem; border: 1px solid var(--border); }
+    .code-block { background: var(--surface); border: 1px solid var(--border); border-radius: 0.75rem; padding: 1.25rem; overflow-x: auto; font-size: 0.82rem; line-height: 1.7; margin: 1rem 0; }
+    .code-block code { background: none; padding: 0; }
+    .rule-card { background: var(--surface); border: 1px solid var(--border); border-radius: 1rem; padding: 1.25rem; margin: 0.75rem 0; }
+    .rule-card strong { display: block; margin-bottom: 0.25rem; }
+    .rule-card p { font-size: 0.88rem; color: var(--muted); margin: 0; }
+    .section-nav { background: var(--surface); border: 1px solid var(--border); border-radius: 1rem; padding: 1.5rem; margin-bottom: 2rem; }
+    .section-nav h3 { font-size: 0.9rem; font-weight: 700; margin-bottom: 0.75rem; }
+    .section-nav a { display: block; font-size: 0.85rem; color: var(--accent); text-decoration: none; padding: 0.25rem 0; }
+    .section-nav a:hover { text-decoration: underline; }
+  </style>
+</head>
+<body>
+  <header>
+    <div class="container">
+      <a href="/" class="logo">Pro<span>Game</span>Store</a>
+      <button class="nav-toggle" onclick="this.nextElementSibling.classList.toggle('open')" aria-label="Menu"><svg width="20" height="20" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M3 5h14M3 10h14M3 15h14"/></svg></button>
+      <nav>
+        <a href="/">Games</a>
+        <a href="https://freegamestore.online">Free Games</a>
+        <a href="/about.html">About</a>
+        <a href="/guidelines.html">Guidelines</a>
+        <a href="/pricing.html">Pricing</a>
+      </nav>
+    </div>
+  </header>
+
+  <main class="container">
+    <div class="page-header">
+      <h1>Developer Guidelines</h1>
+      <p>Everything you need to build and publish a game on ProGameStore. Brand, design system, tech stack, templates, and compliance checks.</p>
+    </div>
+
+    <div class="page-content">
+      <div class="section-nav">
+        <h3>Contents</h3>
+        <a href="#platform-rules">Platform Rules</a>
+        <a href="#brand">Brand &amp; Logo</a>
+        <a href="#colors">Colors</a>
+        <a href="#typography">Typography</a>
+        <a href="#tech-stack">Tech Stack</a>
+        <a href="#game-engines">Game Engines</a>
+        <a href="#templates">Templates</a>
+        <a href="#project-structure">Project Structure</a>
+        <a href="#publishing">Publishing Process</a>
+        <a href="#checklist">Compliance Checklist</a>
+      </div>
+
+      <!-- Platform Rules -->
+      <h2 id="platform-rules">Platform Rules</h2>
+      <p>These are non-negotiable. Every game on ProGameStore must follow these principles:</p>
+
+      <div class="rule-card">
+        <strong>Free means free</strong>
+        <p>No freemium, no ads, no plans, no paywalls, no "upgrade to unlock." If it's on ProGameStore, it stays free forever.</p>
+      </div>
+      <div class="rule-card">
+        <strong>No tracking</strong>
+        <p>Zero analytics, zero cookies, zero data collection. All player data stays on-device in localStorage.</p>
+      </div>
+      <div class="rule-card">
+        <strong>Open source</strong>
+        <p>MIT license. Public repo on the <a href="https://github.com/progamestore-online">progamestore-online</a> GitHub org. Anyone can read the code, verify privacy claims, and contribute.</p>
+      </div>
+      <div class="rule-card">
+        <strong>Real games, not demos</strong>
+        <p>Every game must be playable and complete. If it only shows a title screen, it's not ready.</p>
+      </div>
+      <div class="rule-card">
+        <strong>Works everywhere</strong>
+        <p>Responsive, mobile-first, PWA. Games must work on phones, tablets, and desktops.</p>
+      </div>
+
+      <!-- Brand -->
+      <h2 id="brand">Brand &amp; Logo</h2>
+
+      <h3>Wordmark</h3>
+      <p>The logo is a wordmark, not an icon. Written as one word with "Game" highlighted in the platform accent color:</p>
+      <ul>
+        <li><strong>Free<span style="color:var(--accent)">Game</span>Store</strong> — emerald accent (<code>#9333ea</code>)</li>
+        <li><strong>Pro<span style="color:var(--pro)">Game</span>Store</strong> — amber accent (<code>#d97706</code>)</li>
+      </ul>
+
+      <h3>Naming rules</h3>
+      <ul>
+        <li>Always one word, PascalCase: <code>ProGameStore</code></li>
+        <li>Never three words: <s>Free Game Store</s></li>
+        <li>Never all-caps: <s>FREEGAMESTORE</s></li>
+      </ul>
+
+      <h3>Game naming</h3>
+      <table class="spec-table">
+        <tr><th>Context</th><th>Format</th><th>Example</th></tr>
+        <tr><td>GitHub repo</td><td>lowercase, no prefix</td><td><code>chess</code></td></tr>
+        <tr><td>Package name</td><td>lowercase + "game"</td><td><code>chessgame</code></td></tr>
+        <tr><td>Display name</td><td>Single word, capitalized</td><td>Chess</td></tr>
+        <tr><td>Subdomain</td><td>lowercase.progamestore.online</td><td><code>chess.progamestore.online</code></td></tr>
+      </table>
+
+      <!-- Colors -->
+      <h2 id="colors">Colors</h2>
+
+      <h3>Shared neutral palette (all games)</h3>
+      <p>Every game uses the same neutral palette for UI chrome. The accent color is emerald green across the platform.</p>
+
+      <table class="spec-table">
+        <tr><th>Token</th><th>Light</th><th>Dark</th><th>Usage</th></tr>
+        <tr><td><code>--bg</code></td><td><span class="color-swatch" style="background:#fafaf9"></span>#fafaf9</td><td><span class="color-swatch" style="background:#0f0f0f"></span>#0f0f0f</td><td>Page background</td></tr>
+        <tr><td><code>--surface</code></td><td><span class="color-swatch" style="background:#ffffff"></span>#ffffff</td><td><span class="color-swatch" style="background:#1a1a1a"></span>#1a1a1a</td><td>Card/panel background</td></tr>
+        <tr><td><code>--ink</code></td><td><span class="color-swatch" style="background:#1a1a1a"></span>#1a1a1a</td><td><span class="color-swatch" style="background:#f0f0f0"></span>#f0f0f0</td><td>Primary text</td></tr>
+        <tr><td><code>--muted</code></td><td><span class="color-swatch" style="background:#6b6b6b"></span>#6b6b6b</td><td><span class="color-swatch" style="background:#999999"></span>#999999</td><td>Secondary text</td></tr>
+        <tr><td><code>--border</code></td><td><span class="color-swatch" style="background:#e5e5e5"></span>#e5e5e5</td><td><span class="color-swatch" style="background:#2a2a2a"></span>#2a2a2a</td><td>Borders</td></tr>
+        <tr><td><code>--accent</code></td><td><span class="color-swatch" style="background:#9333ea"></span>#9333ea</td><td><span class="color-swatch" style="background:#c084fc"></span>#c084fc</td><td>Primary accent (emerald)</td></tr>
+        <tr><td><code>--accent-soft</code></td><td><span class="color-swatch" style="background:#faf5ff"></span>#faf5ff</td><td><span class="color-swatch" style="background:#1a2e26"></span>#1a2e26</td><td>Accent background</td></tr>
+        <tr><td><code>--pro</code></td><td><span class="color-swatch" style="background:#d97706"></span>#d97706</td><td><span class="color-swatch" style="background:#fbbf24"></span>#fbbf24</td><td>Pro accent (amber)</td></tr>
+      </table>
+
+      <!-- Typography -->
+      <h2 id="typography">Typography</h2>
+
+      <h3>Font families</h3>
+      <p>The platform uses the system font stack for clean, fast rendering:</p>
+      <div class="code-block"><code>font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', system-ui, sans-serif;</code></div>
+
+      <h3>Key weights</h3>
+      <table class="spec-table">
+        <tr><th>Weight</th><th>Usage</th></tr>
+        <tr><td>400</td><td>Body text</td></tr>
+        <tr><td>600</td><td>Labels, nav links</td></tr>
+        <tr><td>700</td><td>Headings, card titles</td></tr>
+        <tr><td>800</td><td>Page titles, hero text</td></tr>
+      </table>
+
+      <!-- Tech Stack -->
+      <h2 id="tech-stack">Tech Stack</h2>
+
+      <table class="spec-table">
+        <tr><th>Layer</th><th>Choice</th><th>Version</th></tr>
+        <tr><td>Language</td><td>TypeScript</td><td>^5.7</td></tr>
+        <tr><td>Framework</td><td>React</td><td>^19.0</td></tr>
+        <tr><td>Bundler</td><td>Vite</td><td>^6.0</td></tr>
+        <tr><td>Styling</td><td>Tailwind CSS</td><td>^4.1</td></tr>
+        <tr><td>Hosting</td><td>Cloudflare Pages</td><td>--</td></tr>
+        <tr><td>Package Manager</td><td>pnpm</td><td>^10.30</td></tr>
+        <tr><td>Node</td><td>--</td><td>&ge;20.19</td></tr>
+      </table>
+
+      <!-- Game Engines -->
+      <h2 id="game-engines">Game Engines</h2>
+      <p>Games use specialized engines depending on the game type. All integrate with the React + Vite stack.</p>
+
+      <table class="spec-table">
+        <tr><th>Engine</th><th>Use case</th><th>Template</th></tr>
+        <tr><td><strong>Three.js / R3F</strong></td><td>3D games — racing, bowling, 3D puzzles</td><td><code>template-game-3d</code></td></tr>
+        <tr><td><strong>Babylon.js</strong></td><td>Advanced 3D with physics</td><td><code>template-game-babylon</code></td></tr>
+        <tr><td><strong>Phaser</strong></td><td>2D arcade games with physics</td><td><code>template-game-phaser</code></td></tr>
+        <tr><td><strong>PixiJS</strong></td><td>Sprite-heavy 2D rendering</td><td><code>template-game-pixi</code></td></tr>
+        <tr><td><strong>Kaplay</strong></td><td>Simple, fun 2D games</td><td><code>template-game-kaplay</code></td></tr>
+        <tr><td><strong>HTML5 Canvas</strong></td><td>Direct canvas drawing for classic 2D games</td><td><code>template-game-canvas</code></td></tr>
+      </table>
+
+      <h3>2D games</h3>
+      <p>For 2D games, use HTML5 Canvas directly or a framework like Phaser, PixiJS, or Kaplay. The canvas template gives you a bare <code>&lt;canvas&gt;</code> element with a game loop. Phaser and PixiJS templates include their respective engines pre-configured.</p>
+
+      <h3>3D games</h3>
+      <p>For 3D games, use Three.js (via React Three Fiber) or Babylon.js. The 3D template includes Three.js with R3F, a basic scene, camera controls, and lighting. Babylon.js template includes the engine with a physics-ready scene.</p>
+
+      <!-- Templates -->
+      <h2 id="templates">Templates</h2>
+      <p>Four core templates cover most game types:</p>
+
+      <table class="spec-table">
+        <tr><th>Template</th><th>Repo</th><th>Best for</th></tr>
+        <tr><td>Canvas</td><td><code>template-game-canvas</code></td><td>Platformers, shooters, Snake, Pac-Man, Frogger</td></tr>
+        <tr><td>Grid</td><td><code>template-game-grid</code></td><td>Minesweeper, Sudoku, 2048, Match-3, Word Search</td></tr>
+        <tr><td>Cards</td><td><code>template-game-cards</code></td><td>Solitaire, Memory, card-based games</td></tr>
+        <tr><td>3D</td><td><code>template-game-3d</code></td><td>Racing, Bowling, 3D puzzles</td></tr>
+      </table>
+
+      <p>Clone the one that matches your game:</p>
+      <div class="code-block"><code>git clone https://github.com/progamestore-online/template-game-canvas my-game
+git clone https://github.com/progamestore-online/template-game-grid my-game
+git clone https://github.com/progamestore-online/template-game-cards my-game
+git clone https://github.com/progamestore-online/template-game-3d my-game</code></div>
+
+      <!-- Project Structure -->
+      <h2 id="project-structure">Project Structure</h2>
+      <div class="code-block"><code>game-name/
+├── package.json           (workspace root)
+├── pnpm-workspace.yaml    (packages: [web])
+├── .gitignore
+└── web/
+    ├── index.html
+    ├── package.json       (@gamename/web)
+    ├── vite.config.ts
+    ├── tsconfig.json
+    ├── public/
+    │   └── manifest.json  (PWA manifest)
+    └── src/
+        ├── main.tsx
+        ├── index.css       (Tailwind + CSS variables)
+        ├── App.tsx          (game entry point)
+        ├── types.ts
+        ├── components/
+        ├── hooks/
+        └── game/            (game logic, engine code)</code></div>
+
+      <!-- Publishing -->
+      <h2 id="publishing">Publishing Process</h2>
+
+      <h3>How games get deployed</h3>
+      <ol>
+        <li><strong>Push to <code>main</code></strong> — creator pushes code to the GitHub repo</li>
+        <li><strong>Cloudflare Pages builds</strong> — automatic build triggered on push (runs <code>pnpm install && pnpm build</code>)</li>
+        <li><strong>Deploy to edge</strong> — built assets deployed to Cloudflare's global CDN</li>
+        <li><strong>Live on subdomain</strong> — available at <code>gamename.progamestore.online</code></li>
+      </ol>
+      <p>No CI/CD configuration needed. No tokens to manage. Cloudflare Pages is connected directly to GitHub — push and it deploys.</p>
+
+      <h3>How a new game gets listed</h3>
+      <ol>
+        <li><strong>Apply</strong> — Open an issue on <a href="https://github.com/progamestore-online/submissions">submissions</a> with your game idea and GitHub username</li>
+        <li><strong>Review</strong> — Reviewed within 48 hours</li>
+        <li><strong>Provision</strong> — Repo created in org, CF Pages project set up, subdomain assigned</li>
+        <li><strong>Build</strong> — Develop the game following these guidelines</li>
+        <li><strong>Listed</strong> — Game card added to the ProGameStore landing page</li>
+      </ol>
+
+      <!-- Checklist -->
+      <h2 id="checklist">Compliance Checklist</h2>
+      <p>Every game must pass ALL of these before listing:</p>
+
+      <h3>Gameplay</h3>
+      <ul>
+        <li>Game is playable and complete (not a demo or placeholder)</li>
+        <li>Works on mobile (320px+) with touch controls</li>
+        <li>Works on desktop (1024px+) with keyboard/mouse</li>
+        <li>Saves progress/high scores locally (localStorage)</li>
+        <li>No console errors in production build</li>
+      </ul>
+
+      <h3>Design</h3>
+      <ul>
+        <li>Uses shared CSS custom properties for UI chrome</li>
+        <li>Emerald accent color via <code>var(--accent)</code></li>
+        <li>Supports dark mode via system preference</li>
+        <li>Responsive layout — works across screen sizes</li>
+      </ul>
+
+      <h3>PWA</h3>
+      <ul>
+        <li>Has <code>manifest.json</code> with name, icons, theme color</li>
+        <li>Includes <code>apple-mobile-web-app-capable</code> meta tag</li>
+        <li>Registers a service worker</li>
+        <li>Works when added to home screen</li>
+      </ul>
+
+      <h3>Privacy</h3>
+      <ul>
+        <li>Zero network requests for tracking/analytics</li>
+        <li>No cookies</li>
+        <li>No external scripts (CDN fonts are OK)</li>
+        <li>All player data in localStorage only</li>
+      </ul>
+
+      <h3>Performance</h3>
+      <ul>
+        <li>First load &lt;2s on 3G</li>
+        <li>Smooth gameplay at 60fps on mid-range devices</li>
+        <li>No layout shift after load</li>
+      </ul>
+
+      <h3>Code</h3>
+      <ul>
+        <li>TypeScript with strict mode</li>
+        <li>No <code>any</code> types</li>
+        <li>Clean build with zero warnings</li>
+        <li>MIT license in repo</li>
+      </ul>
+
+      <div class="cta-box">
+        <h3>Ready to build?</h3>
+        <p>Clone a template and start building your game. Follow these guidelines and it will fit right in.</p>
+        <a href="https://github.com/progamestore-online" class="btn">GitHub Organization &rarr;</a>
+      </div>
+    </div>
+  </main>
+
+  <footer>
+    <div class="container">
+      <div class="footer-left">
+        <a href="/" class="logo">Pro<span>Game</span>Store</a>
+        <p>Free forever, open source, privacy-first.</p>
+      </div>
+      <div class="footer-links">
+        <a href="/about.html">About</a>
+        
+        <a href="/guidelines.html">Guidelines</a>
+        <a href="/privacy.html">Privacy</a>
+        <a href="/terms.html">Terms</a>
+        <a href="https://github.com/progamestore-online">GitHub</a>
+        <a href="https://github.com/progamestore-online/progamestore/discussions">Support</a>
+      </div>
+    </div>
+  </footer>
+</body>
+</html>

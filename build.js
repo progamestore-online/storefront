@@ -1,0 +1,590 @@
+const fs = require('fs');
+const path = require('path');
+const https = require('https');
+const crypto = require('crypto');
+
+const ROOT = __dirname;
+// DIST and the registry path can be overridden via env vars so the test
+// suite in test/build.test.mjs can run a parallel build against a temp
+// registry without touching real outputs.
+const DIST = process.env.FGS_DIST ? path.resolve(process.env.FGS_DIST) : path.join(ROOT, 'dist');
+const REGISTRY_PATH = process.env.FGS_REGISTRY_PATH ? path.resolve(process.env.FGS_REGISTRY_PATH) : path.join(ROOT, 'registry.json');
+
+// Read registry
+const registry = JSON.parse(fs.readFileSync(REGISTRY_PATH, 'utf8'));
+const games = registry.games;
+
+// Registry shape validator — stop malformed/malicious entries at build time.
+const ID_RE = /^[a-z0-9][a-z0-9-]*$/;
+const COLOR_RE = /^#(?:[0-9a-fA-F]{3,4}|[0-9a-fA-F]{6}|[0-9a-fA-F]{8})$/;
+const URL_RE = /^https:\/\/[a-z0-9.-]+\.progamestore\.online(?:\/.*)?$/;
+function safeText(s, max) {
+  return typeof s === 'string' && s.length > 0 && s.length <= max && !/[\x00-\x1f\x7f]/.test(s);
+}
+function validateRegistry(items) {
+  const errors = [];
+  const seenIds = new Set();
+  for (const g of items) {
+    if (!g.id || !ID_RE.test(g.id)) errors.push(`bad id: ${JSON.stringify(g.id)}`);
+    else if (seenIds.has(g.id)) errors.push(`duplicate id: ${JSON.stringify(g.id)}`);
+    else seenIds.add(g.id);
+    if (!safeText(g.name, 80)) errors.push(`${g.id}: name must be 1-80 chars without control chars`);
+    if (!g.appUrl || !URL_RE.test(g.appUrl)) errors.push(`${g.id}: appUrl must be https://*.progamestore.online, got ${JSON.stringify(g.appUrl)}`);
+    if (g.iconBg && !COLOR_RE.test(g.iconBg)) errors.push(`${g.id}: iconBg must be a #hex color, got ${JSON.stringify(g.iconBg)}`);
+    if (g.category != null && !safeText(g.category, 80)) errors.push(`${g.id}: bad category ${JSON.stringify(g.category)}`);
+    if (g.description != null && !safeText(g.description, 500)) errors.push(`${g.id}: description must be 1-500 chars without control chars`);
+    if (g.developer != null && !safeText(g.developer, 60)) errors.push(`${g.id}: bad developer ${JSON.stringify(g.developer)}`);
+    if (g.author != null && !safeText(g.author, 60)) errors.push(`${g.id}: bad author ${JSON.stringify(g.author)}`);
+    if (g.repo != null && (typeof g.repo !== 'string' || g.repo.length > 100 || !/^[\w.-]+\/[\w.-]+$/.test(g.repo))) {
+      errors.push(`${g.id}: repo must be "owner/name", got ${JSON.stringify(g.repo)}`);
+    }
+  }
+  if (errors.length) {
+    console.error('Registry validation failed:\n  - ' + errors.join('\n  - '));
+    process.exit(1);
+  }
+}
+validateRegistry(games);
+
+// Read templates
+const indexTemplate = fs.readFileSync(path.join(ROOT, 'templates', 'index.html'), 'utf8');
+const detailTemplate = fs.readFileSync(path.join(ROOT, 'templates', 'game-detail.html'), 'utf8');
+
+// Helper: format category label (brain-training -> Brain Training)
+function categoryLabel(cat) {
+  return cat.split('-').map(w => w.charAt(0).toUpperCase() + w.slice(1)).join(' ');
+}
+
+// Helper: type label
+function typeLabel(type) {
+  return type === 'standalone' ? 'Standalone (works offline)' : 'Connected (requires internet)';
+}
+
+// --- GitHub API helpers (used to source first-published + commit log) ---
+
+const GH_TOKEN = process.env.GITHUB_TOKEN || process.env.GH_TOKEN || '';
+
+function ghFetch(urlPath) {
+  return new Promise((resolve, reject) => {
+    const headers = {
+      'User-Agent': 'progamestore-build',
+      'Accept': 'application/vnd.github+json',
+      'X-GitHub-Api-Version': '2022-11-28',
+    };
+    if (GH_TOKEN) headers['Authorization'] = `Bearer ${GH_TOKEN}`;
+    const req = https.request(
+      { hostname: 'api.github.com', path: urlPath, method: 'GET', headers },
+      (res) => {
+        let data = '';
+        res.on('data', (chunk) => (data += chunk));
+        res.on('end', () => {
+          if (res.statusCode >= 200 && res.statusCode < 300) {
+            try { resolve(JSON.parse(data)); }
+            catch (e) { reject(new Error(`bad JSON from ${urlPath}: ${e.message}`)); }
+          } else {
+            const isRateLimit = res.statusCode === 403 && /rate limit/i.test(data);
+            reject(new Error(`${urlPath} → ${res.statusCode}${isRateLimit ? ' (rate limited)' : ''}`));
+          }
+        });
+      },
+    );
+    req.on('error', reject);
+    req.end();
+  });
+}
+
+const FMT_DATE = new Intl.DateTimeFormat('en-US', { year: 'numeric', month: 'long', day: 'numeric' });
+const FMT_SHORT = new Intl.DateTimeFormat('en-US', { year: 'numeric', month: 'short', day: 'numeric' });
+
+function escapeHtml(s) {
+  return String(s)
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;')
+    .replace(/'/g, '&#39;');
+}
+
+/**
+ * Trim the GitHub API responses to only the fields the renderer reads.
+ * Keeps the cache file ~30 KB instead of ~350 KB.
+ */
+function compactHistory(meta, commits) {
+  return {
+    meta: meta
+      ? {
+          created_at: meta.created_at ?? null,
+          pushed_at: meta.pushed_at ?? null,
+        }
+      : null,
+    commits: Array.isArray(commits)
+      ? commits.map((c) => ({
+          sha: c.sha,
+          html_url: c.html_url,
+          commit: {
+            message: c.commit?.message ?? '',
+            author: { date: c.commit?.author?.date ?? c.commit?.committer?.date ?? null },
+          },
+        }))
+      : null,
+  };
+}
+
+async function fetchGameHistory(repo) {
+  // repo is "owner/name". Two parallel calls: repo metadata for created_at,
+  // and the last 3 commits for the changelog. Failures degrade gracefully.
+  try {
+    const [meta, commits] = await Promise.all([
+      ghFetch(`/repos/${repo}`),
+      ghFetch(`/repos/${repo}/commits?per_page=3`),
+    ]);
+    return compactHistory(meta, commits);
+  } catch (err) {
+    console.warn(`  ! could not fetch history for ${repo}: ${err.message}`);
+    return { meta: null, commits: null };
+  }
+}
+
+// --- History cache (data/commit-history.json) ---
+//
+// CF Pages runs its own GitHub-integration build that doesn't have
+// GITHUB_TOKEN. Caching lets that no-token build still produce correct
+// output. The scheduled GH-Actions deploy refreshes the cache every 6h.
+const CACHE_PATH = path.join(ROOT, 'data', 'commit-history.json');
+
+function readCache() {
+  try {
+    return JSON.parse(fs.readFileSync(CACHE_PATH, 'utf8'));
+  } catch {
+    return {};
+  }
+}
+
+function writeCache(cache) {
+  fs.mkdirSync(path.dirname(CACHE_PATH), { recursive: true });
+  fs.writeFileSync(CACHE_PATH, JSON.stringify(cache, null, 2) + '\n');
+}
+
+async function fetchAllHistories(games) {
+  const cache = readCache();
+  const histories = await Promise.all(
+    games.map(async (game) => {
+      const fresh = await fetchGameHistory(game.repo);
+      if (fresh.commits) {
+        cache[game.repo] = fresh;
+        return fresh;
+      }
+      const cached = cache[game.repo];
+      if (cached?.commits) return cached;
+      return fresh;
+    }),
+  );
+  writeCache(cache);
+  return histories;
+}
+
+function renderHistorySection(repo, history) {
+  const githubAllUrl = `https://github.com/${repo}/commits/main`;
+  if (!history.commits || history.commits.length === 0) {
+    return `<section class="app-section">
+      <h2>Recent updates</h2>
+      <p style="color: var(--muted);">No updates yet — check back after the first deploy.</p>
+      <p><a class="source-link" href="${githubAllUrl}" target="_blank" rel="noopener">See full history on GitHub &rarr;</a></p>
+    </section>`;
+  }
+  const items = history.commits.map((c) => {
+    const date = new Date(c.commit.author?.date ?? c.commit.committer?.date);
+    const isoDate = date.toISOString().slice(0, 10);
+    const shortDate = FMT_SHORT.format(date);
+    const firstLine = (c.commit.message || '').split('\n')[0].trim();
+    const msg = escapeHtml(firstLine).slice(0, 140);
+    const sha = c.sha.slice(0, 7);
+    return `<li class="version-row">
+      <time datetime="${isoDate}" class="version-date">${shortDate}</time>
+      <span class="version-msg">${msg}</span>
+      <a class="version-sha" href="${c.html_url}" target="_blank" rel="noopener">${sha}</a>
+    </li>`;
+  }).join('\n');
+  return `<section class="app-section">
+      <h2>Recent updates</h2>
+      <ul class="version-log">
+${items}
+      </ul>
+      <p style="margin-top: 0.75rem;"><a class="source-link" href="${githubAllUrl}" target="_blank" rel="noopener">See full history on GitHub &rarr;</a></p>
+    </section>`;
+}
+
+function renderPublishedLine(history) {
+  if (!history.meta) return '';
+  const created = history.meta.created_at ? new Date(history.meta.created_at) : null;
+  const lastCommit = history.commits?.[0];
+  const updated = lastCommit?.commit?.author?.date
+    ? new Date(lastCommit.commit.author.date)
+    : history.meta.pushed_at ? new Date(history.meta.pushed_at) : null;
+  const parts = [];
+  if (created) {
+    parts.push(`First published <time datetime="${created.toISOString().slice(0,10)}">${FMT_DATE.format(created)}</time>`);
+  }
+  if (updated) {
+    parts.push(`last updated <time datetime="${updated.toISOString().slice(0,10)}">${FMT_DATE.format(updated)}</time>`);
+  }
+  if (parts.length === 0) return '';
+  return `<p class="published-line">${parts.join(' &middot; ')}</p>`;
+}
+
+// Ensure dist directories exist
+fs.mkdirSync(path.join(DIST, 'games'), { recursive: true });
+
+// --- Generate index.html ---
+
+// Build game cards — compact letter-badge layout, Figma 2026
+const gameCards = games.map(game => {
+  // Letter fallback on data-attribute; storefront.js binds the error handler.
+  const letter = escapeHtml((game.name || '?').trim().charAt(0).toUpperCase());
+  const iconBg = escapeHtml(game.iconBg || '#9333ea');
+  return `        <div class="app-card compact" data-id="${escapeHtml(game.id)}" data-category="${escapeHtml(game.category)}" data-about="/games/${escapeHtml(game.id)}.html">
+          <div class="app-icon" data-letter="${letter}" style="background: ${iconBg};">
+            <img src="${escapeHtml(game.appUrl)}/apple-touch-icon.png" alt="" loading="lazy" />
+          </div>
+          <div class="app-body">
+            <span class="app-name">${escapeHtml(game.name)}</span>
+            <span class="app-meta">${escapeHtml(categoryLabel(game.category))}</span>
+          </div>
+          <a href="${escapeHtml(game.appUrl)}" target="_blank" rel="noopener" class="app-cta" aria-label="Play ${escapeHtml(game.name)}">
+            <svg viewBox="0 0 24 24" aria-hidden="true"><polygon points="6,4 20,12 6,20" /></svg>
+            <span class="cta-label">Play</span>
+          </a>
+        </div>`;
+}).join('\n\n');
+
+// SHA-256 of the inline no-flash theme bootstrap so CSP can whitelist it
+// without 'unsafe-inline'. The bootstrap is the first <script> inside <head>.
+const inlineScriptMatch = indexTemplate.match(/<head>[\s\S]*?<script>([\s\S]*?)<\/script>/);
+if (!inlineScriptMatch) {
+  console.error('Could not locate the inline bootstrap <script> for CSP hashing');
+  process.exit(1);
+}
+const inlineScriptHash = 'sha256-' + crypto.createHash('sha256').update(inlineScriptMatch[1]).digest('base64');
+
+// indexHtml is finalized inside the async IIFE below — cross-store
+// registry fetch is async, and we want to embed it into the page.
+let indexHtml = indexTemplate
+  .replaceAll('{{INLINE_SCRIPT_HASH}}', inlineScriptHash)
+  .replaceAll('{{GAMES_GRID}}', gameCards)
+  .replaceAll('{{GAMES_COUNT}}', String(games.length));
+
+// --- Generate game detail pages ---
+// Wrapped in async IIFE because this file is CJS (no top-level await).
+
+async function fetchAuditSummary() {
+  // Fetch /v1/audit?store=games. Failures degrade gracefully — the
+  // audit badge just doesn't render.
+  try {
+    const res = await new Promise((resolve, reject) => {
+      const req = https.request(
+        { hostname: 'api.freegamestore.online', path: '/v1/audit?store=games', method: 'GET' },
+        (r) => {
+          let data = '';
+          r.on('data', (c) => (data += c));
+          r.on('end', () => resolve({ status: r.statusCode, body: data }));
+        },
+      );
+      req.on('error', reject);
+      req.end();
+    });
+    if (res.status !== 200) return new Map();
+    const parsed = JSON.parse(res.body);
+    const map = new Map();
+    for (const s of parsed.summary ?? []) map.set(s.appId, s);
+    return map;
+  } catch (err) {
+    console.warn(`  ! could not fetch audit summary: ${err.message}`);
+    return new Map();
+  }
+}
+
+function renderAuditBadge(summary) {
+  if (!summary) {
+    return '<p class="audit-badge audit-pending"><span class="dot"></span> Not yet audited</p>';
+  }
+  const total = summary.pass + summary.warn + summary.fail;
+  if (summary.fail > 0) {
+    return `<p class="audit-badge audit-fail"><span class="dot"></span> ${summary.fail} compliance failure${summary.fail === 1 ? '' : 's'} of ${total} checks &middot; <a href="https://api.freegamestore.online/v1/audit?app=${summary.appId}">details</a></p>`;
+  }
+  if (summary.warn > 0) {
+    return `<p class="audit-badge audit-warn"><span class="dot"></span> ${summary.pass}/${total} compliance checks pass &middot; ${summary.warn} warning${summary.warn === 1 ? '' : 's'}</p>`;
+  }
+  return `<p class="audit-badge audit-pass"><span class="dot"></span> ${total}/${total} compliance checks pass</p>`;
+}
+
+function fetchManifest(appUrl) {
+  return new Promise((resolve) => {
+    try {
+      const u = new URL('/manifest.json', appUrl);
+      const req = https.request(
+        { hostname: u.hostname, path: u.pathname, method: 'GET' },
+        (r) => {
+          let data = '';
+          r.on('data', (c) => (data += c));
+          r.on('end', () => {
+            if (r.statusCode !== 200) return resolve(null);
+            try {
+              resolve(JSON.parse(data));
+            } catch {
+              resolve(null);
+            }
+          });
+        },
+      );
+      req.on('error', () => resolve(null));
+      req.setTimeout(6000, () => {
+        req.destroy();
+        resolve(null);
+      });
+      req.end();
+    } catch {
+      resolve(null);
+    }
+  });
+}
+
+function viewportCoverage(minWidth) {
+  if (minWidth <= 320) return 99;
+  if (minWidth <= 360) return 96;
+  if (minWidth <= 414) return 88;
+  if (minWidth <= 600) return 60;
+  if (minWidth <= 768) return 35;
+  if (minWidth <= 1024) return 20;
+  return 10;
+}
+
+function renderViewportBadge(manifest) {
+  if (!manifest) {
+    return '<p class="audit-badge audit-pending"><span class="dot"></span> Viewport support: unknown</p>';
+  }
+  const orientation = typeof manifest.orientation === 'string' ? manifest.orientation : null;
+  const minWidth =
+    typeof manifest.min_viewport_width === 'number' ? manifest.min_viewport_width : null;
+  if (orientation === null || minWidth === null) {
+    return '<p class="audit-badge audit-pending"><span class="dot"></span> Viewport support: not declared</p>';
+  }
+  const coverage = viewportCoverage(minWidth);
+  const orientLabel =
+    orientation === 'any'
+      ? 'portrait + landscape'
+      : orientation === 'portrait' || orientation === 'portrait-primary'
+        ? 'portrait only'
+        : 'landscape only';
+  const cls = coverage >= 90 ? 'audit-pass' : coverage >= 50 ? 'audit-warn' : 'audit-fail';
+  return `<p class="audit-badge ${cls}"><span class="dot"></span> Works on ~${coverage}% of devices · ${orientLabel} · min ${minWidth}px wide</p>`;
+}
+
+async function fetchCrossStoreRegistry() {
+  // Pull the OTHER store's registry so the homepage search can
+  // federate. Failure → empty registry, search still works locally.
+  return new Promise((resolve) => {
+    const req = https.request(
+      {
+        hostname: 'raw.githubusercontent.com',
+        path: '/freegamestore-online/freegamestore/main/registry.json',
+        method: 'GET',
+      },
+      (r) => {
+        let data = '';
+        r.on('data', (c) => (data += c));
+        r.on('end', () => {
+          try {
+            const parsed = JSON.parse(data);
+            resolve({
+              items: parsed.apps ?? [],
+              domain: 'freegamestore.online',
+              path: 'apps',
+            });
+          } catch {
+            resolve({ items: [], domain: 'freegamestore.online', path: 'apps' });
+          }
+        });
+      },
+    );
+    req.on('error', () => resolve({ items: [], domain: 'freegamestore.online', path: 'apps' }));
+    req.end();
+  });
+}
+
+(async () => {
+console.log(`Fetching commit history for ${games.length} games (with disk cache fallback)...`);
+const [histories, auditMap, crossRegistry, manifests] = await Promise.all([
+  fetchAllHistories(games),
+  fetchAuditSummary(),
+  fetchCrossStoreRegistry(),
+  Promise.all(games.map((g) => fetchManifest(g.appUrl))),
+]);
+
+indexHtml = indexHtml.replace(
+  '{{CROSS_STORE_REGISTRY}}',
+  JSON.stringify(crossRegistry).replace(/</g, '\\u003c'),
+);
+fs.writeFileSync(path.join(DIST, 'index.html'), indexHtml);
+
+// Quality dashboard skipped — PGS doesn't yet have a scheduled auditor.
+// When one ships, port the FGS pattern (templates/quality.html + audit
+// data folded into the JSON blob the dashboard reads). Until then, the
+// main detail page is the only quality surface.
+
+const okCount = histories.filter((h) => Array.isArray(h?.commits) && h.commits.length > 0).length;
+console.log(`  ${okCount}/${games.length} games got commit history`);
+console.log(`  ${auditMap.size} games have audit results`);
+console.log(`  ${crossRegistry.items.length} apps available for cross-store search`);
+
+games.forEach((game, i) => {
+  const offline = game.type === 'standalone' ? 'Yes' : 'When cached';
+  const account = game.type === 'standalone' ? 'Not required' : 'Not required';
+  const history = histories[i];
+  // PGS-specific pricing fields. Every game declares `price` in the
+  // registry; render it for the detail page. Free-trial label too.
+  const priceLabel = game.price
+    ? `$${game.price.amountUsd}/${game.price.period}`
+    : 'Subscription';
+  const trialLabel = game.price && game.price.trialDays
+    ? `${game.price.trialDays} days free`
+    : 'No trial';
+
+  // XSS defense: every user-facing field that's not pre-validated to a
+  // safe shape (id, iconBg, appUrl all pass the validator above) is
+  // escaped here. NAME / DESCRIPTION / AUTHOR / DEVELOPER are free-form.
+  let html = detailTemplate
+    .replace(/\{\{NAME\}\}/g, escapeHtml(game.name))
+    .replace(/\{\{NAME_LOWER\}\}/g, escapeHtml(game.name.toLowerCase()))
+    .replace(/\{\{ID\}\}/g, escapeHtml(game.id))
+    .replace(/\{\{ICON\}\}/g, game.icon) // pre-validated HTML entity from registry
+    .replace(/\{\{ICON_BG\}\}/g, escapeHtml(game.iconBg))
+    .replace(/\{\{CATEGORY_LABEL\}\}/g, escapeHtml(categoryLabel(game.category)))
+    .replace(/\{\{DESCRIPTION\}\}/g, escapeHtml(game.description))
+    .replace(/\{\{APP_URL\}\}/g, escapeHtml(game.appUrl))
+    .replace(/\{\{REPO\}\}/g, escapeHtml(game.repo))
+    .replace(/\{\{TYPE_LABEL\}\}/g, escapeHtml(typeLabel(game.type)))
+    .replace(/\{\{DEVELOPER\}\}/g, escapeHtml(game.developer || 'ProGameStore'))
+    .replace(/\{\{AUTHOR\}\}/g, escapeHtml(game.author || game.developer || 'ProGameStore'))
+    .replace(/\{\{OFFLINE\}\}/g, offline)
+    .replace(/\{\{ACCOUNT\}\}/g, account)
+    .replace(/\{\{PRICE_LABEL\}\}/g, escapeHtml(priceLabel))
+    .replace(/\{\{TRIAL_LABEL\}\}/g, escapeHtml(trialLabel))
+    .replace(/\{\{PUBLISHED_LINE\}\}/g, renderPublishedLine(history))
+    .replace(/\{\{HISTORY_SECTION\}\}/g, renderHistorySection(game.repo, history))
+    .replace(/\{\{AUDIT_BADGE\}\}/g, renderAuditBadge(auditMap.get(game.id)))
+    .replace(/\{\{VIEWPORT_BADGE\}\}/g, renderViewportBadge(manifests[i]));
+
+  fs.writeFileSync(path.join(DIST, 'games', `${game.id}.html`), html);
+});
+
+// --- Generate sitemap.xml ---
+
+const today = new Date().toISOString().split('T')[0];
+const sitemapEntries = [
+  '  <url><loc>https://progamestore.online/</loc><priority>1.0</priority></url>',
+  '  <url><loc>https://progamestore.online/about.html</loc><priority>0.8</priority></url>',
+  '  <url><loc>https://progamestore.online/contribute.html</loc><priority>0.7</priority></url>',
+  '  <url><loc>https://progamestore.online/build-with-ai.html</loc><priority>0.85</priority></url>',
+  '  <url><loc>https://progamestore.online/ai/claude-code.html</loc><priority>0.7</priority></url>',
+  '  <url><loc>https://progamestore.online/ai/cursor.html</loc><priority>0.7</priority></url>',
+  '  <url><loc>https://progamestore.online/ai/github-copilot.html</loc><priority>0.7</priority></url>',
+  '  <url><loc>https://progamestore.online/ai/aider.html</loc><priority>0.7</priority></url>',
+  '  <url><loc>https://progamestore.online/ai/codex.html</loc><priority>0.7</priority></url>',
+  '  <url><loc>https://progamestore.online/ai/windsurf.html</loc><priority>0.7</priority></url>',
+  '  <url><loc>https://progamestore.online/ai/zed.html</loc><priority>0.7</priority></url>',
+  '  <url><loc>https://progamestore.online/ai/continue.html</loc><priority>0.7</priority></url>',
+  '  <url><loc>https://progamestore.online/ai/cline.html</loc><priority>0.7</priority></url>',
+  '  <url><loc>https://progamestore.online/ai/chatgpt-web.html</loc><priority>0.7</priority></url>',
+  '  <url><loc>https://progamestore.online/guidelines.html</loc><priority>0.7</priority></url>',
+  '  <url><loc>https://progamestore.online/leaderboard.html</loc><priority>0.7</priority></url>',
+  '  <url><loc>https://progamestore.online/privacy.html</loc><priority>0.5</priority></url>',
+  '  <url><loc>https://progamestore.online/terms.html</loc><priority>0.5</priority></url>',
+  ...games.map(game =>
+    `  <url><loc>https://progamestore.online/games/${game.id}.html</loc><priority>0.9</priority></url>`
+  )
+];
+
+const sitemap = `<?xml version="1.0" encoding="UTF-8"?>
+<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
+${sitemapEntries.join('\n')}
+</urlset>
+`;
+
+fs.writeFileSync(path.join(DIST, 'sitemap.xml'), sitemap);
+
+// --- Copy static assets ---
+
+const filesToCopy = [
+  'style.css',
+  'search.js',
+  'storefront.js',
+  'theme.js',
+  'quality.js',
+  'favicon.svg',
+  'apple-touch-icon.png',
+  'icon-192.png',
+  'icon-512.png',
+  'robots.txt',
+  '404.html',
+  'about.html',
+  'contribute.html',
+  'guidelines.html',
+  'leaderboard.html',
+  'privacy.html',
+  'terms.html',
+  'build-with-ai.html',
+  'pricing.html',
+  'get-started.html',
+  'SKILLS.md',
+];
+
+// Security headers via CF Pages _headers (must be HTTP headers, not meta tags).
+fs.writeFileSync(path.join(DIST, '_headers'), [
+  '/*',
+  '  X-Frame-Options: DENY',
+  '  X-Content-Type-Options: nosniff',
+  '  Referrer-Policy: strict-origin-when-cross-origin',
+  '  Permissions-Policy: geolocation=(), microphone=(), camera=()',
+  '  Content-Security-Policy: frame-ancestors \'none\'',
+  '',
+].join('\n'));
+
+filesToCopy.forEach(file => {
+  const src = path.join(ROOT, file);
+  if (fs.existsSync(src)) {
+    fs.copyFileSync(src, path.join(DIST, file));
+  }
+});
+
+// AI tool guides under /ai/<slug>.html.
+const aiSrcDir = path.join(ROOT, 'ai');
+if (fs.existsSync(aiSrcDir)) {
+  const aiDestDir = path.join(DIST, 'ai');
+  fs.mkdirSync(aiDestDir, { recursive: true });
+  for (const f of fs.readdirSync(aiSrcDir)) {
+    if (!f.endsWith('.html')) continue;
+    fs.copyFileSync(path.join(aiSrcDir, f), path.join(aiDestDir, f));
+  }
+}
+
+// Auditor fixture under /audit-fixture/. Single static page with
+// query-param-driven scenarios — see audit-fixture/index.html for the
+// scenarios + their expected audit verdicts. Hosted same-origin so the
+// /quality dashboard can iframe it without any CORS dance.
+const fixtureSrcDir = path.join(ROOT, 'audit-fixture');
+if (fs.existsSync(fixtureSrcDir)) {
+  const fixtureDestDir = path.join(DIST, 'audit-fixture');
+  fs.mkdirSync(fixtureDestDir, { recursive: true });
+  for (const f of fs.readdirSync(fixtureSrcDir)) {
+    fs.copyFileSync(path.join(fixtureSrcDir, f), path.join(fixtureDestDir, f));
+  }
+}
+
+console.log(`Built ${games.length} game cards into dist/index.html`);
+console.log(`Generated ${games.length} detail pages in dist/games/`);
+console.log('Generated dist/sitemap.xml');
+console.log('Copied static assets');
+})().catch((err) => {
+  console.error('build failed:', err);
+  process.exit(1);
+});

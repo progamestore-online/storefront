@@ -1,0 +1,127 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>About — ProGameStore</title>
+  <meta name="description" content="ProGameStore is the paid, multiplayer-first counterpart to FreeGameStore. Subscription-priced games with server-side state, cloud sync, and AI opponents." />
+  <meta property="og:type" content="website" />
+  <meta property="og:title" content="About — ProGameStore" />
+  <meta property="og:description" content="ProGameStore is the paid, multiplayer-first counterpart to FreeGameStore. Subscription-priced games with server-side state, cloud sync, and AI opponents." />
+  <meta property="og:url" content="https://progamestore.online/about.html" />
+  <meta property="og:image" content="https://progamestore.online/icon-512.png" />
+  <meta name="twitter:card" content="summary" />
+  <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
+  <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+  <header>
+    <div class="container">
+      <a href="/" class="logo">Pro<span>Game</span>Store</a>
+      <button class="nav-toggle" onclick="this.nextElementSibling.classList.toggle('open')" aria-label="Menu"><svg width="20" height="20" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M3 5h14M3 10h14M3 15h14"/></svg></button>
+      <nav>
+        <a href="/">Games</a>
+        <a href="https://freegamestore.online">Free Games</a>
+        <a href="/about.html">About</a>
+        <a href="/guidelines.html">Guidelines</a>
+        <a href="/pricing.html">Pricing</a>
+      </nav>
+    </div>
+  </header>
+
+  <main class="container">
+    <div class="page-header">
+      <h1>About ProGameStore</h1>
+      <p>Premium multiplayer web games with server-side state, cloud sync, and the same brand-consistent shell as FreeGameStore. Subscription-priced.</p>
+    </div>
+
+    <div class="page-content">
+      <h2>What this is</h2>
+      <p>ProGameStore is a curated marketplace for browser games that legitimately need a backend &mdash; turn-based multiplayer, real-time lobbies, persistent worlds, server-side AI. Every game is a Progressive Web App; every game ships with the same UI shell as <a href="https://freegamestore.online" style="color: var(--accent); font-weight: 600;">FreeGameStore</a>; every game is subscription-priced with a transparent 10% platform commission.</p>
+
+      <h2>Why a paid tier exists</h2>
+      <p>Real-time multiplayer over WebSockets runs on Cloudflare Durable Objects. A popular multiplayer game with a thousand concurrent players burns ~$4,000/month in DO charges alone. The free tier on <a href="https://freegamestore.online" style="color: var(--accent); font-weight: 600;">FreeGameStore</a> doesn't try to absorb that cost; it ships single-player games only. ProGameStore is where the multiplayer story lives, and the subscription pays the bill.</p>
+
+      <div class="principles">
+        <div class="principle">
+          <h3>Multiplayer is the headline</h3>
+          <p>Every game here has a server-authoritative component. Turn-based vs. a remote opponent, real-time lobbies, persistent worlds &mdash; whatever the game needs.</p>
+        </div>
+        <div class="principle">
+          <h3>Same shell as Free</h3>
+          <p>The brand &mdash; fonts, layout, mute toggle, sign-in &mdash; is identical to FreeGameStore. A game's Pro version looks the same as its Free version; the difference is in what it does.</p>
+        </div>
+        <div class="principle">
+          <h3>Cross-device sync</h3>
+          <p>One <code>@progamestore</code> account; your games follow you. Save state in the cloud, not localStorage.</p>
+        </div>
+        <div class="principle">
+          <h3>Quality-gated, not open source</h3>
+          <p>Pro game code can be private. Same compliance audit as Free (fonts, viewport, no tracking) plus uptime + correctness gates on the multiplayer service.</p>
+        </div>
+      </div>
+
+      <h2>Free vs. Pro</h2>
+      <div class="comparison">
+        <div class="comparison-col free">
+          <h4><a href="https://freegamestore.online" style="color: inherit; text-decoration: none;">FreeGameStore</a></h4>
+          <ul>
+            <li>Free forever</li>
+            <li>Single-player only</li>
+            <li>Local-only state (no cloud)</li>
+            <li>MIT-licensed, open source</li>
+            <li>43 games today</li>
+            <li>No accounts required to play</li>
+          </ul>
+        </div>
+        <div class="comparison-col pro">
+          <h4>ProGameStore</h4>
+          <ul>
+            <li>Per-game subscription (e.g. $2/mo)</li>
+            <li>Real-time multiplayer + persistent state</li>
+            <li>Cloud save sync across devices</li>
+            <li>Server-side AI opponents</li>
+            <li>Curated catalog &mdash; quality-gated</li>
+            <li>7-day free trial on every game</li>
+          </ul>
+        </div>
+      </div>
+
+      <h2>How publishing works</h2>
+      <p>Game developers run <code>npx -y @progamestore/cli@latest init my-game</code> to scaffold from a template (turn-based, real-time, or 3D-persistent). The CLI ships a working Worker + Durable Object skeleton, the <code>useRooms()</code> client hook, and the same compliance gate as Free. <code>pgs publish</code> auto-provisions GitHub repo + Cloudflare Worker + DNS + Stripe Connect subscription. Developer sets the price; platform takes 10%.</p>
+
+      <h2>Open?</h2>
+      <p>The <em>platform</em> is open: <a href="https://github.com/progamestore-online/platform">progamestore-online/platform</a> (SDK + CLI + compliance, MIT). Individual games on Pro can be private &mdash; that's the developer's call. The Free side (FreeGameStore) requires MIT for every listed game; Pro doesn't.</p>
+
+      <h2>Status</h2>
+      <p>ProGameStore launched in May 2026. The first listed game is multiplayer chess. The platform infrastructure (SDK, CLI, compliance suite, scaffolding templates) is feature-complete; the storefront catalog grows as more multiplayer games ship.</p>
+
+      <h2>Support &amp; Community</h2>
+      <ul>
+        <li><strong>Questions</strong> &mdash; <a href="https://github.com/progamestore-online/storefront/discussions">GitHub Discussions</a></li>
+        <li><strong>Bug reports</strong> &mdash; open an issue on the game's GitHub repo</li>
+        <li><strong>Platform issues</strong> &mdash; <a href="https://github.com/progamestore-online/platform/issues">platform/issues</a></li>
+      </ul>
+    </div>
+  </main>
+
+  <footer>
+    <div class="container">
+      <div class="footer-left">
+        <a href="/" class="logo">Pro<span>Game</span>Store</a>
+        <p>Premium web games with superpowers.</p>
+      </div>
+      <div class="footer-links">
+        <a href="/about.html">About</a>
+        <a href="/pricing.html">Pricing</a>
+        <a href="/guidelines.html">Guidelines</a>
+        <a href="/privacy.html">Privacy</a>
+        <a href="/terms.html">Terms</a>
+        <a href="https://github.com/progamestore-online">GitHub</a>
+        <a href="https://freegamestore.online">FreeGameStore</a>
+      </div>
+    </div>
+  </footer>
+</body>
+</html>

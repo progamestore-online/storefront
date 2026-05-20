@@ -1,0 +1,31 @@
+name: Deploy to Cloudflare Pages
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+
+      # GITHUB_TOKEN lifts the GitHub API rate limit from 60 to 5000 req/hr,
+      # which build.js needs to fetch each game's commit history at build
+      # time without the deploy ever rate-limiting.
+      - run: node build.js
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      - run: npx wrangler pages deploy dist --project-name=progamestore-storefront
+        env:
+          CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          CLOUDFLARE_ACCOUNT_ID: c1089bfcc43c1c6c2aa89e584e86f0bc
