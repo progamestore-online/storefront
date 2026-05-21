@@ -483,22 +483,13 @@ const today = new Date().toISOString().split('T')[0];
 const sitemapEntries = [
   '  <url><loc>https://progamestore.online/</loc><priority>1.0</priority></url>',
   '  <url><loc>https://progamestore.online/about.html</loc><priority>0.8</priority></url>',
-  '  <url><loc>https://progamestore.online/contribute.html</loc><priority>0.7</priority></url>',
-  '  <url><loc>https://progamestore.online/build-with-ai.html</loc><priority>0.85</priority></url>',
-  '  <url><loc>https://progamestore.online/ai/claude-code.html</loc><priority>0.7</priority></url>',
-  '  <url><loc>https://progamestore.online/ai/cursor.html</loc><priority>0.7</priority></url>',
-  '  <url><loc>https://progamestore.online/ai/github-copilot.html</loc><priority>0.7</priority></url>',
-  '  <url><loc>https://progamestore.online/ai/aider.html</loc><priority>0.7</priority></url>',
-  '  <url><loc>https://progamestore.online/ai/codex.html</loc><priority>0.7</priority></url>',
-  '  <url><loc>https://progamestore.online/ai/windsurf.html</loc><priority>0.7</priority></url>',
-  '  <url><loc>https://progamestore.online/ai/zed.html</loc><priority>0.7</priority></url>',
-  '  <url><loc>https://progamestore.online/ai/continue.html</loc><priority>0.7</priority></url>',
-  '  <url><loc>https://progamestore.online/ai/cline.html</loc><priority>0.7</priority></url>',
-  '  <url><loc>https://progamestore.online/ai/chatgpt-web.html</loc><priority>0.7</priority></url>',
+  '  <url><loc>https://progamestore.online/pricing.html</loc><priority>0.9</priority></url>',
   '  <url><loc>https://progamestore.online/guidelines.html</loc><priority>0.7</priority></url>',
-  '  <url><loc>https://progamestore.online/leaderboard.html</loc><priority>0.7</priority></url>',
   '  <url><loc>https://progamestore.online/privacy.html</loc><priority>0.5</priority></url>',
   '  <url><loc>https://progamestore.online/terms.html</loc><priority>0.5</priority></url>',
+  // NOTE: contribute.html, build-with-ai.html, ai/*.html, leaderboard.html
+  // were copy-pasted from FGS's sitemap but the pages haven't been created
+  // on PGS yet. Re-add their entries once the pages exist.
   ...games.map(game =>
     `  <url><loc>https://progamestore.online/games/${game.id}.html</loc><priority>0.9</priority></url>`
   )
