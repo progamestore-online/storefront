@@ -530,6 +530,7 @@ const filesToCopy = [
   'docs.html',
   'llms.txt',
   'SKILLS.md',
+  'skills.md',
 ];
 
 // Security headers via CF Pages _headers (must be HTTP headers, not meta tags).
