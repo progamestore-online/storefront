@@ -1,0 +1,114 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Get Started — ProGameStore</title>
+  <meta name="description" content="Start building a premium multiplayer game on ProGameStore. Three commands to scaffold, build, and publish." />
+  <meta property="og:type" content="website" />
+  <meta property="og:title" content="Get Started — ProGameStore" />
+  <meta property="og:description" content="Start building a premium multiplayer game on ProGameStore in under a minute." />
+  <meta property="og:url" content="https://progamestore.online/get-started" />
+  <meta property="og:image" content="https://progamestore.online/icon-512.png" />
+  <meta name="twitter:card" content="summary" />
+  <link rel="canonical" href="https://progamestore.online/get-started" />
+  <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
+  <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+  <header>
+    <div class="container">
+      <a href="/" class="logo">Pro<span>Game</span>Store</a>
+      <button class="nav-toggle" onclick="this.nextElementSibling.classList.toggle('open')" aria-label="Menu"><svg width="20" height="20" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M3 5h14M3 10h14M3 15h14"/></svg></button>
+      <nav>
+        <a href="/">Games</a>
+        <a href="https://freegamestore.online">Free Games</a>
+        <a href="/about.html">About</a>
+        <a href="/get-started.html">Get Started</a>
+        <a href="/docs.html">Docs</a>
+        <a href="/guidelines.html">Guidelines</a>
+        <a href="/pricing.html">Pricing</a>
+      </nav>
+    </div>
+  </header>
+
+  <main class="container">
+    <div class="page-header">
+      <h1>Start building in 60 seconds</h1>
+      <p>Three commands. Multiplayer-ready template. Auto-deploy on push.</p>
+    </div>
+
+    <div class="page-content">
+      <h2>1. Scaffold a new game</h2>
+      <pre><code>npx -y @progamestore/cli@latest init my-game</code></pre>
+      <p>This creates a new game from a template with the SDK pre-configured, a working Durable Object skeleton for multiplayer, and compliance rules baked in.</p>
+
+      <h2>2. Start developing</h2>
+      <pre><code>cd my-game
+pnpm install
+pnpm dev</code></pre>
+      <p>Open <code>http://localhost:5173</code>. You get a working game shell with topbar, auth, and the <code>useRooms()</code> hook ready to wire up.</p>
+
+      <h2>3. Publish to the store</h2>
+      <pre><code>pgs publish</code></pre>
+      <p>The CLI runs compliance checks (build, brand, viewport, multiplayer correctness), provisions your GitHub repo + Cloudflare Worker + DNS + Stripe Connect subscription, and lists your game on the store.</p>
+
+      <h2>What you get out of the box</h2>
+      <ul>
+        <li><strong>GameShell + GameTopbar</strong> &mdash; brand-consistent UI shell, zero-scroll viewport lock</li>
+        <li><strong>useRooms()</strong> &mdash; real-time multiplayer via Durable Objects (WebSocket)</li>
+        <li><strong>useAuth()</strong> &mdash; platform-level authentication (sign in with GitHub)</li>
+        <li><strong>useLeaderboard()</strong> &mdash; persistent D1 leaderboard</li>
+        <li><strong>useGameSounds()</strong> &mdash; mute-aware sound effects</li>
+        <li><strong>Cloud sync</strong> &mdash; 10MB/user, cross-device save state</li>
+        <li><strong>Stripe subscription</strong> &mdash; you set the price, platform takes 10%</li>
+        <li><strong>Auto-deploy</strong> &mdash; push to main, game updates live</li>
+      </ul>
+
+      <h2>Templates</h2>
+      <p>The CLI offers multiple starting points:</p>
+      <ul>
+        <li><strong>Turn-based</strong> &mdash; chess, checkers, card games. Server validates moves, clients render.</li>
+        <li><strong>Real-time</strong> &mdash; racing, fighting, co-op. 60fps state sync via WebSocket.</li>
+        <li><strong>Persistent world</strong> &mdash; MMO-lite, sandbox. State lives on the server between sessions.</li>
+      </ul>
+
+      <h2>Use AI to build</h2>
+      <p>Your scaffolded project includes a <code>CLAUDE.md</code> that points to the <a href="/skills.md">platform skills guide</a>. Open any AI coding tool and describe your game:</p>
+      <pre><code># In Claude Code, Cursor, Codex, or any AI tool:
+"Build a real-time racing game where 4 players compete on a procedural track.
+Use the useRooms() hook for multiplayer. Canvas rendering."</code></pre>
+      <p>The AI agent reads the skills guide and builds with the right SDK, the right patterns, and the right deploy flow.</p>
+
+      <h2>Next steps</h2>
+      <ul>
+        <li><a href="/docs.html">SDK Documentation</a> &mdash; full API reference</li>
+        <li><a href="/build-with-ai.html">Build with AI</a> &mdash; step-by-step AI tool guides</li>
+        <li><a href="/guidelines.html">Guidelines</a> &mdash; compliance rules and brand requirements</li>
+        <li><a href="/pricing.html">Pricing</a> &mdash; how subscriptions and payouts work</li>
+      </ul>
+    </div>
+  </main>
+
+  <footer>
+    <div class="container">
+      <div class="footer-left">
+        <a href="/" class="logo">Pro<span>Game</span>Store</a>
+        <p>Premium web games with superpowers.</p>
+      </div>
+      <div class="footer-links">
+        <a href="/about.html">About</a>
+        <a href="/get-started.html">Get Started</a>
+        <a href="/docs.html">Docs</a>
+        <a href="/guidelines.html">Guidelines</a>
+        <a href="/pricing.html">Pricing</a>
+        <a href="/privacy.html">Privacy</a>
+        <a href="/terms.html">Terms</a>
+        <a href="https://github.com/progamestore-online">GitHub</a>
+        <a href="https://freegamestore.online">FreeGameStore</a>
+      </div>
+    </div>
+  </footer>
+</body>
+</html>

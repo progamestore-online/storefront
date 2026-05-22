@@ -1,0 +1,207 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Docs — ProGameStore</title>
+  <meta name="description" content="ProGameStore Games SDK documentation. GameShell, GameTopbar, useRooms, useAuth, leaderboards, sound effects, and React hooks." />
+  <meta property="og:type" content="website" />
+  <meta property="og:title" content="Docs — ProGameStore" />
+  <meta property="og:description" content="Games SDK docs: components, hooks, multiplayer rooms, leaderboard, sound effects." />
+  <meta property="og:url" content="https://progamestore.online/docs" />
+  <meta property="og:image" content="https://progamestore.online/icon-512.png" />
+  <meta name="twitter:card" content="summary" />
+  <link rel="canonical" href="https://progamestore.online/docs" />
+  <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
+  <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+  <header>
+    <div class="container">
+      <a href="/" class="logo">Pro<span>Game</span>Store</a>
+      <button class="nav-toggle" onclick="this.nextElementSibling.classList.toggle('open')" aria-label="Menu"><svg width="20" height="20" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M3 5h14M3 10h14M3 15h14"/></svg></button>
+      <nav>
+        <a href="/">Games</a>
+        <a href="https://freegamestore.online">Free Games</a>
+        <a href="/about.html">About</a>
+        <a href="/get-started.html">Get Started</a>
+        <a href="/docs.html">Docs</a>
+        <a href="/guidelines.html">Guidelines</a>
+        <a href="/pricing.html">Pricing</a>
+      </nav>
+    </div>
+  </header>
+
+  <main class="container">
+    <div class="page-header">
+      <h1>Documentation</h1>
+      <p>Everything you need to build a multiplayer game. One SDK, brand-consistent, scroll-free.</p>
+    </div>
+
+    <div class="page-content">
+
+      <h2>Quick Start</h2>
+      <pre><code>npm i @progamestore/games</code></pre>
+      <pre><code>import { GameShell, GameTopbar } from '@progamestore/games'
+
+export default function App() {
+  return (
+    &lt;GameShell topbar={&lt;GameTopbar title="My Game" score={0} /&gt;}&gt;
+      {/* your game canvas */}
+    &lt;/GameShell&gt;
+  )
+}</code></pre>
+
+      <h2>GameShell</h2>
+      <p>Root layout wrapper. Locks the viewport to <code>100svh</code>, prevents document scroll, disables text selection. Every game wraps its content in this.</p>
+      <pre><code>&lt;GameShell topbar={&lt;GameTopbar title="Chess" score={0} /&gt;}&gt;
+  &lt;ChessBoard /&gt;
+&lt;/GameShell&gt;</code></pre>
+      <table>
+        <thead><tr><th>Prop</th><th>Type</th><th>Description</th></tr></thead>
+        <tbody>
+          <tr><td><code>topbar</code></td><td><code>ReactNode?</code></td><td>Topbar element (typically GameTopbar)</td></tr>
+          <tr><td><code>children</code></td><td><code>ReactNode</code></td><td>Game content, fills remaining viewport</td></tr>
+        </tbody>
+      </table>
+
+      <h2>GameTopbar</h2>
+      <p>Standard topbar for all games. Same font, padding, and colors everywhere.</p>
+      <pre><code>&lt;GameTopbar title="Chess" stats={[
+  { label: 'Score', value: 1200, accent: true },
+  { label: 'Time', value: '3:42' }
+]} /&gt;</code></pre>
+      <table>
+        <thead><tr><th>Prop</th><th>Type</th><th>Description</th></tr></thead>
+        <tbody>
+          <tr><td><code>title</code></td><td><code>string</code></td><td>Game name (required)</td></tr>
+          <tr><td><code>score</code></td><td><code>number?</code></td><td>Simple score display</td></tr>
+          <tr><td><code>stats</code></td><td><code>GameTopbarStat[]?</code></td><td>Custom stat chips</td></tr>
+        </tbody>
+      </table>
+
+      <h2>GameAuth</h2>
+      <p>Platform-level sign-in button. Handles GitHub OAuth, displays avatar when signed in.</p>
+      <pre><code>&lt;GameAuth /&gt;</code></pre>
+
+      <h2>GameButton</h2>
+      <p>Styled button matching the platform design system.</p>
+      <pre><code>&lt;GameButton variant="primary" size="lg" onClick={startGame}&gt;
+  Play
+&lt;/GameButton&gt;</code></pre>
+      <table>
+        <thead><tr><th>Prop</th><th>Type</th><th>Options</th></tr></thead>
+        <tbody>
+          <tr><td><code>variant</code></td><td><code>GameButtonVariant</code></td><td><code>'primary' | 'secondary' | 'ghost' | 'danger'</code></td></tr>
+          <tr><td><code>size</code></td><td><code>GameButtonSize</code></td><td><code>'sm' | 'md' | 'lg'</code></td></tr>
+        </tbody>
+      </table>
+
+      <h2>useRooms()</h2>
+      <p>Real-time multiplayer via Cloudflare Durable Objects. The headline Pro feature.</p>
+      <pre><code>import { useRooms } from '@progamestore/games'
+
+function MultiplayerGame() {
+  const { status, send, messages, peers } = useRooms({
+    gameId: 'chess',
+    roomId: 'lobby-1',
+    onMessage: (msg) =&gt; handleMove(msg),
+  })
+
+  return (
+    &lt;div&gt;
+      &lt;p&gt;Status: {status}&lt;/p&gt;
+      &lt;p&gt;Players: {peers.length}&lt;/p&gt;
+      &lt;button onClick={() =&gt; send({ type: 'move', data: { from: 'e2', to: 'e4' } })}&gt;
+        Move
+      &lt;/button&gt;
+    &lt;/div&gt;
+  )
+}</code></pre>
+      <table>
+        <thead><tr><th>Option</th><th>Type</th><th>Description</th></tr></thead>
+        <tbody>
+          <tr><td><code>gameId</code></td><td><code>string</code></td><td>Your game's ID</td></tr>
+          <tr><td><code>roomId</code></td><td><code>string</code></td><td>Room to join (or create)</td></tr>
+          <tr><td><code>onMessage</code></td><td><code>(msg: RoomMessage) =&gt; void</code></td><td>Callback for incoming messages</td></tr>
+        </tbody>
+      </table>
+      <table>
+        <thead><tr><th>Return</th><th>Type</th><th>Description</th></tr></thead>
+        <tbody>
+          <tr><td><code>status</code></td><td><code>RoomStatus</code></td><td><code>'connecting' | 'open' | 'closed' | 'error'</code></td></tr>
+          <tr><td><code>send</code></td><td><code>(msg) =&gt; void</code></td><td>Send a message to all peers</td></tr>
+          <tr><td><code>messages</code></td><td><code>RoomMessage[]</code></td><td>Message history</td></tr>
+          <tr><td><code>peers</code></td><td><code>string[]</code></td><td>Connected peer IDs</td></tr>
+        </tbody>
+      </table>
+
+      <h2>useAuth()</h2>
+      <p>Platform-level authentication hook.</p>
+      <pre><code>const { user, signIn, signOut } = useAuth()
+// user: { login: string, avatar_url: string } | null</code></pre>
+
+      <h2>useLeaderboard()</h2>
+      <p>Persistent D1 leaderboard for your game.</p>
+      <pre><code>const { entries, submit, loading } = useLeaderboard('chess')
+// entries: LeaderboardEntry[] = [{ user, score, rank, ts }]
+// submit(score: number): Promise&lt;void&gt;</code></pre>
+
+      <h2>useGameSounds()</h2>
+      <p>Mute-aware sound effects. Respects the global mute toggle in GameTopbar.</p>
+      <pre><code>const { play } = useGameSounds({
+  move: '/sounds/move.mp3',
+  capture: '/sounds/capture.mp3',
+  win: '/sounds/win.mp3',
+})
+
+play('move') // no-op if muted</code></pre>
+
+      <h2>useSound()</h2>
+      <p>Low-level sound hook for single effects.</p>
+      <pre><code>const { play, muted } = useSound('/sounds/click.mp3')</code></pre>
+
+      <h2>Leaderboard</h2>
+      <p>Drop-in leaderboard UI component.</p>
+      <pre><code>&lt;Leaderboard gameId="chess" limit={10} /&gt;</code></pre>
+
+      <h2>Full Exports</h2>
+      <pre><code>// Components
+export { GameShell, GameTopbar, GameAuth, GameButton, Leaderboard }
+
+// Hooks
+export { useAuth, useRooms, useLeaderboard, useGameSounds, useSound }
+
+// Types
+export type {
+  GameShellProps, GameTopbarProps, GameTopbarStat,
+  GameButtonProps, GameButtonVariant, GameButtonSize,
+  LeaderboardProps, LeaderboardEntry,
+  User, RoomMessage, RoomStatus, UseRoomsOptions, UseRoomsResult
+}</code></pre>
+
+    </div>
+  </main>
+
+  <footer>
+    <div class="container">
+      <div class="footer-left">
+        <a href="/" class="logo">Pro<span>Game</span>Store</a>
+        <p>Premium web games with superpowers.</p>
+      </div>
+      <div class="footer-links">
+        <a href="/about.html">About</a>
+        <a href="/get-started.html">Get Started</a>
+        <a href="/docs.html">Docs</a>
+        <a href="/guidelines.html">Guidelines</a>
+        <a href="/pricing.html">Pricing</a>
+        <a href="/privacy.html">Privacy</a>
+        <a href="/terms.html">Terms</a>
+        <a href="https://github.com/progamestore-online">GitHub</a>
+        <a href="https://freegamestore.online">FreeGameStore</a>
+      </div>
+    </div>
+  </footer>
+</body>
+</html>

@@ -1,1 +1,40 @@
-{}
+{
+  "progamestore-online/chess": {
+    "meta": {
+      "created_at": "2026-05-19T23:50:14Z",
+      "pushed_at": "2026-05-20T04:47:38Z"
+    },
+    "commits": [
+      {
+        "sha": "3ec8b212abf5aa3a88572f744ea7fc495fb7de4b",
+        "html_url": "https://github.com/progamestore-online/chess/commit/3ec8b212abf5aa3a88572f744ea7fc495fb7de4b",
+        "commit": {
+          "message": "fix: declare maskable icon purpose for Android PWA install\n\nAndroid Chrome installs PWAs as launcher shortcuts (not real apps with\ntheir own task slot) unless the manifest declares at least one icon\nwith purpose: 'maskable'. Add 'any maskable' to both 192/512 entries\nso installs land in the app drawer with an adaptive icon.",
+          "author": {
+            "date": "2026-05-20T04:47:36Z"
+          }
+        }
+      },
+      {
+        "sha": "cd85c41ab002f7b7507cfae797abc15ac594fda6",
+        "html_url": "https://github.com/progamestore-online/chess/commit/cd85c41ab002f7b7507cfae797abc15ac594fda6",
+        "commit": {
+          "message": "ci: trigger build now that @progamestore/games is on npm",
+          "author": {
+            "date": "2026-05-20T03:47:46Z"
+          }
+        }
+      },
+      {
+        "sha": "6e31c0605eb0d7501ab5924d810fcd69e1afb72e",
+        "html_url": "https://github.com/progamestore-online/chess/commit/6e31c0605eb0d7501ab5924d810fcd69e1afb72e",
+        "commit": {
+          "message": "ci: drop pnpm cache until lockfile lands",
+          "author": {
+            "date": "2026-05-19T23:51:19Z"
+          }
+        }
+      }
+    ]
+  }
+}

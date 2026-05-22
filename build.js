@@ -487,8 +487,9 @@ const sitemapEntries = [
   '  <url><loc>https://progamestore.online/guidelines.html</loc><priority>0.7</priority></url>',
   '  <url><loc>https://progamestore.online/privacy.html</loc><priority>0.5</priority></url>',
   '  <url><loc>https://progamestore.online/terms.html</loc><priority>0.5</priority></url>',
-  // NOTE: contribute.html, build-with-ai.html, ai/*.html, leaderboard.html
-  // were copy-pasted from FGS's sitemap but the pages haven't been created
+  '  <url><loc>https://progamestore.online/get-started.html</loc><priority>0.9</priority></url>',
+  '  <url><loc>https://progamestore.online/build-with-ai.html</loc><priority>0.8</priority></url>',
+  '  <url><loc>https://progamestore.online/docs.html</loc><priority>0.8</priority></url>',
   // on PGS yet. Re-add their entries once the pages exist.
   ...games.map(game =>
     `  <url><loc>https://progamestore.online/games/${game.id}.html</loc><priority>0.9</priority></url>`
@@ -526,6 +527,8 @@ const filesToCopy = [
   'build-with-ai.html',
   'pricing.html',
   'get-started.html',
+  'docs.html',
+  'llms.txt',
   'SKILLS.md',
 ];
 

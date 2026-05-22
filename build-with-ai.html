@@ -1,0 +1,136 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Build with AI — ProGameStore</title>
+  <meta name="description" content="Build a premium multiplayer game on ProGameStore with Claude Code, Cursor, Codex, or any AI coding tool." />
+  <meta property="og:type" content="website" />
+  <meta property="og:title" content="Build with AI — ProGameStore" />
+  <meta property="og:description" content="Build a premium multiplayer game with AI. Drop in the skills guide and ship." />
+  <meta property="og:url" content="https://progamestore.online/build-with-ai" />
+  <meta property="og:image" content="https://progamestore.online/icon-512.png" />
+  <meta name="twitter:card" content="summary" />
+  <link rel="canonical" href="https://progamestore.online/build-with-ai" />
+  <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
+  <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+  <header>
+    <div class="container">
+      <a href="/" class="logo">Pro<span>Game</span>Store</a>
+      <button class="nav-toggle" onclick="this.nextElementSibling.classList.toggle('open')" aria-label="Menu"><svg width="20" height="20" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M3 5h14M3 10h14M3 15h14"/></svg></button>
+      <nav>
+        <a href="/">Games</a>
+        <a href="https://freegamestore.online">Free Games</a>
+        <a href="/about.html">About</a>
+        <a href="/get-started.html">Get Started</a>
+        <a href="/docs.html">Docs</a>
+        <a href="/guidelines.html">Guidelines</a>
+        <a href="/pricing.html">Pricing</a>
+      </nav>
+    </div>
+  </header>
+
+  <main class="container">
+    <div class="page-header">
+      <h1>Build a multiplayer game with AI.</h1>
+      <p>ProGameStore is AI-first. Drop our <a href="/skills.md">skills.md</a> into your AI tool of choice, and the agent already knows the SDK, the multiplayer patterns, the compliance rules, and the deploy flow before it writes a line of code.</p>
+    </div>
+
+    <div class="page-content">
+
+      <h2>The workflow</h2>
+      <ol>
+        <li><strong>Scaffold:</strong> <code>npx -y @progamestore/cli@latest init my-game</code></li>
+        <li><strong>Open your AI tool</strong> in the project directory</li>
+        <li><strong>Describe your game.</strong> The AI reads <code>CLAUDE.md</code> which points to the platform guide.</li>
+        <li><strong>Build + iterate.</strong> The AI uses <code>@progamestore/games</code> for the shell and <code>useRooms()</code> for multiplayer.</li>
+        <li><strong>Publish:</strong> <code>pgs publish</code></li>
+      </ol>
+
+      <h2>Claude Code</h2>
+      <p>Anthropic's terminal CLI. The scaffolded project includes <code>CLAUDE.md</code> that Claude reads automatically.</p>
+      <pre><code># Scaffold and open
+npx -y @progamestore/cli@latest init my-racing-game
+cd my-racing-game
+claude
+
+# Then describe your game:
+"Build a real-time 4-player racing game. Canvas rendering, procedural tracks,
+useRooms() for multiplayer. Include boost pads and collision physics."</code></pre>
+
+      <h2>Cursor</h2>
+      <p>AI-native VS Code fork. Add the skills guide to your context.</p>
+      <pre><code># Scaffold
+npx -y @progamestore/cli@latest init my-card-game
+cd my-card-game
+cursor .
+
+# In Cursor chat, add context:
+# @file CLAUDE.md
+# Then describe your game.</code></pre>
+
+      <h2>Codex CLI</h2>
+      <p>OpenAI's open-source terminal agent.</p>
+      <pre><code>npx -y @progamestore/cli@latest init my-puzzle-game
+cd my-puzzle-game
+codex
+
+# Codex reads CLAUDE.md from the project root.</code></pre>
+
+      <h2>Any other AI tool</h2>
+      <p>For tools that don't auto-read project files, paste the skills guide URL:</p>
+      <pre><code>Read https://progamestore.online/skills.md for platform context.
+Then build a turn-based strategy game with 2-player multiplayer.</code></pre>
+
+      <h2>What the AI knows from skills.md</h2>
+      <ul>
+        <li>SDK components: GameShell, GameTopbar, GameAuth, GameButton</li>
+        <li>Hooks: useRooms(), useAuth(), useLeaderboard(), useGameSounds()</li>
+        <li>Multiplayer patterns: turn-based, real-time, persistent world</li>
+        <li>Compliance rules: brand fonts, viewport lock, no tracking</li>
+        <li>Deploy flow: <code>pgs publish</code> provisions everything</li>
+        <li>Stripe Connect: developer sets price, platform takes 10%</li>
+      </ul>
+
+      <h2>Example prompts</h2>
+      <div class="principles">
+        <div class="principle">
+          <h3>Turn-based</h3>
+          <p>"Build a multiplayer checkers game. Server validates moves. useRooms() for real-time sync. Include an AI opponent using minimax for single-player mode."</p>
+        </div>
+        <div class="principle">
+          <h3>Real-time</h3>
+          <p>"Build a 4-player arena shooter. Canvas rendering at 60fps. useRooms() broadcasts position + projectiles. Server authoritative for hit detection."</p>
+        </div>
+        <div class="principle">
+          <h3>Persistent world</h3>
+          <p>"Build a farming sim where plots persist between sessions. useRooms() for visiting friends' farms. Cloud sync for inventory. Cron worker for crop growth."</p>
+        </div>
+      </div>
+    </div>
+  </main>
+
+  <footer>
+    <div class="container">
+      <div class="footer-left">
+        <a href="/" class="logo">Pro<span>Game</span>Store</a>
+        <p>Premium web games with superpowers.</p>
+      </div>
+      <div class="footer-links">
+        <a href="/about.html">About</a>
+        <a href="/get-started.html">Get Started</a>
+        <a href="/docs.html">Docs</a>
+        <a href="/guidelines.html">Guidelines</a>
+        <a href="/pricing.html">Pricing</a>
+        <a href="/privacy.html">Privacy</a>
+        <a href="/terms.html">Terms</a>
+        <a href="https://github.com/progamestore-online">GitHub</a>
+        <a href="https://freegamestore.online">FreeGameStore</a>
+      </div>
+    </div>
+  </footer>
+</body>
+</html>
