@@ -36,6 +36,43 @@
           "notes": "Initial PGS release. Lifted from progamestore-online/chess (single-player only) with the multiplayer Worker re-enabled on the @progamestore/games useRooms() hook."
         }
       ]
+    },
+    {
+      "id": "checkers",
+      "name": "Checkers",
+      "category": "strategy",
+      "icon": "&#9899;",
+      "iconBg": "#fef3c7",
+      "description": "Classic checkers with server-authoritative multiplayer. Mandatory captures, multi-jumps, king promotion. Play against a friend in real time.",
+      "appUrl": "https://checkers.progamestore.online",
+      "repo": "progamestore-online/checkers",
+      "cfProject": "checkers",
+      "type": "multiplayer",
+      "developer": "ProGameStore",
+      "author": "ProGameStore Team",
+      "price": {
+        "model": "subscription",
+        "amountUsd": 2,
+        "period": "month",
+        "trialDays": 7
+      },
+      "features": [
+        "Server-authoritative multiplayer (Durable Objects)",
+        "Full rules engine: mandatory captures, multi-jumps, king promotion",
+        "Real-time WebSocket gameplay via useRooms()",
+        "Room-based matchmaking with shareable codes",
+        "Cross-device sync via your @progamestore account"
+      ],
+      "version": "0.1.0",
+      "firstPublished": "2026-05-23",
+      "lastUpdated": "2026-05-23",
+      "versions": [
+        {
+          "version": "0.1.0",
+          "date": "2026-05-23",
+          "notes": "Initial release. Server-authoritative checkers engine with mandatory captures, multi-jumps, and king promotion."
+        }
+      ]
     }
   ]
 }
