@@ -73,6 +73,43 @@
           "notes": "Initial release. Server-authoritative checkers engine with mandatory captures, multi-jumps, and king promotion."
         }
       ]
+    },
+    {
+      "id": "pong",
+      "name": "Pong",
+      "category": "arcade",
+      "icon": "&#127955;",
+      "iconBg": "#ede9fe",
+      "description": "The original video game, now with real-time multiplayer. Two players, two paddles, one ball. First to 11 wins. Canvas-rendered at 60fps with WebSocket state sync.",
+      "appUrl": "https://pong.progamestore.online",
+      "repo": "progamestore-online/pong",
+      "cfProject": "pong",
+      "type": "multiplayer",
+      "developer": "ProGameStore",
+      "author": "ProGameStore Team",
+      "price": {
+        "model": "subscription",
+        "amountUsd": 1,
+        "period": "month",
+        "trialDays": 7
+      },
+      "features": [
+        "Real-time 2-player multiplayer via Durable Objects",
+        "Canvas rendering at 60fps, network sync at 20fps",
+        "P1 runs authoritative ball physics",
+        "First to 11 wins",
+        "Keyboard controls (arrow keys or W/S)"
+      ],
+      "version": "0.1.0",
+      "firstPublished": "2026-05-23",
+      "lastUpdated": "2026-05-23",
+      "versions": [
+        {
+          "version": "0.1.0",
+          "date": "2026-05-23",
+          "notes": "Initial release. Real-time multiplayer pong with WebSocket relay."
+        }
+      ]
     }
   ]
 }
