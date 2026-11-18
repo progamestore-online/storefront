@@ -513,6 +513,8 @@ const filesToCopy = [
   'theme.js',
   'quality.js',
   'favicon.svg',
+  'og-image.png',
+  'manifest.json',
   'apple-touch-icon.png',
   'icon-192.png',
   'icon-512.png',
@@ -550,6 +552,8 @@ filesToCopy.forEach(file => {
     fs.copyFileSync(src, path.join(DIST, file));
   }
 });
+
+fs.cpSync(path.join(ROOT, 'fonts'), path.join(DIST, 'fonts'), { recursive: true });
 
 // AI tool guides under /ai/<slug>.html.
 const aiSrcDir = path.join(ROOT, 'ai');

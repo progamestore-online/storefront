@@ -4,6 +4,11 @@ on:
   push:
     branches: [main]
   workflow_dispatch:
+    inputs:
+      launch_catalogue:
+        description: "Launch dormant catalogue over the active marketing site"
+        type: boolean
+        default: false
 
 permissions:
   contents: read
@@ -25,7 +30,9 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
-      - run: npx wrangler pages deploy dist --project-name=progamestore --branch=main
+      # Marketing owns production until a deliberate catalogue launch.
+      - if: github.event_name == 'workflow_dispatch' && inputs.launch_catalogue == true
+        run: npx wrangler pages deploy dist --project-name=progamestore --branch=main
         env:
           CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
           CLOUDFLARE_ACCOUNT_ID: c1089bfcc43c1c6c2aa89e584e86f0bc

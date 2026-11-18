@@ -25,7 +25,7 @@ Edit `registry.json`. Each game declares:
 - `price`: `{ model, amountUsd, period, trialDays }`
 - `features`: list of bullet points for the detail page
 
-Push to main; CF Pages auto-deploys.
+Push to main validates/builds only. This catalogue is dormant; the marketing repository owns the live coming-soon site. A deliberate manual workflow dispatch with `launch_catalogue=true` is required to launch this catalogue. See [BRAND.md](BRAND.md).
 
 ## Layout
 
